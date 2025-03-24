@@ -113,7 +113,7 @@ export default function ChatMessages() {
             })}
 
             {/* Message date */}
-            <Chip className="mt-4 sticky top-0" size="sm">
+            <Chip className="mt-4" size="sm">
               {dayjs(date).format("dddd, DD MMMM YYYY")}
             </Chip>
           </div>
