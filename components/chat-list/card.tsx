@@ -4,6 +4,7 @@ import { Pin, Image as ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { Avatar } from "@heroui/avatar";
+import { Skeleton } from "@heroui/skeleton";
 
 type ChatCardProps = {
   title: string;
@@ -41,15 +42,19 @@ export default function ChatCard({
     >
       <div className="grid w-full grid-cols-[40px_1fr_auto] items-center gap-2">
         {/* Avatar/Image */}
-        {imageUrl && <Avatar name={title} src={imageUrl} />}
+        <Avatar name={title} src={imageUrl} />
 
         {/* Content */}
         <div className="min-w-0">
           {/* Name */}
-          <h2 className="text-small font-bold">{title}</h2>
+          {title ? (
+            <h2 className="text-small font-bold">{title}</h2>
+          ) : (
+            <Skeleton className="h-5 w-1/2 rounded" />
+          )}
 
           {/* Text */}
-          {description && (
+          {title && description ? (
             <div
               className="flex h-5 items-center gap-1 overflow-hidden"
               title={description}
@@ -79,6 +84,8 @@ export default function ChatCard({
                 {description}
               </ReactMarkdown>
             </div>
+          ) : (
+            <Skeleton className="h-5 rounded translate-y-1" />
           )}
         </div>
 
@@ -91,7 +98,7 @@ export default function ChatCard({
             {/* Pinned/Unread Messages */}
             <div className="flex items-center gap-1">
               {pinned && <Pin size={20} />}
-              {unreadCount && <Chip size="sm">{unreadCount}</Chip>}
+              {unreadCount && <Chip className="h-5" size="sm">{unreadCount}</Chip>}
             </div>
           </div>
         )}

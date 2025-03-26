@@ -28,7 +28,7 @@ export function ChatListCard({
 
   // Convex
   const currentUser = useQuery(api.users.getCurrentUser);
-  const getChatParticipants = useQuery(api.chats.getChatParticipants, {
+  const interlocutor = useQuery(api.chats.getInterlocutor, {
     chatId: chat._id,
   });
   const pinChat = useMutation(api.chats.pinChat);
@@ -37,10 +37,6 @@ export function ChatListCard({
     chatId: chat._id as Id<"chats">,
   });
   const readMessage = useMutation(api.chats.readMessage);
-
-  const interlocutor = getChatParticipants?.find(
-    (p) => p?._id !== currentUser?._id,
-  );
 
   const handleSelectChat = () => {
     setSelectedChat({
@@ -58,60 +54,60 @@ export function ChatListCard({
   };
 
   return (
-    <>
-      {interlocutor && (
-        <ContextMenu>
-          <ContextMenuTrigger>
-            <ChatCard
-              description={`${chat.lastMessageSender === currentUser?._id ? "You: " : ""} ${chat.lastMessage}`}
-              hasMedia={chat.hasMedia}
-              imageUrl={
-                chat.type === "private"
-                  ? (interlocutor?.avatarUrl ?? "")
-                  : (chat.imageUrl ?? "")
-              }
-              pinned={pinned}
-              timeSent={dayjs(chat.lastMessageTime).format("HH:mm")}
-              title={
-                chat.type === "private"
-                  ? (interlocutor?.name ?? "")
-                  : (chat.name ?? "")
-              }
-              unreadCount={unreadMessages?.count}
-              onPress={handleSelectChat}
-            />
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            {/* Pin chat */}
-            {!archived && (
-              <ContextMenuItem
-                className="cursor-pointer space-x-2"
-                onClick={() => {
-                  pinChat({
-                    chatId: chat._id,
-                  });
-                }}
-              >
-                <Pin size={20} />
-                <div>Pin</div>
-              </ContextMenuItem>
-            )}
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <ChatCard
+          description={
+            chat.lastMessageSender === currentUser?._id
+              ? `You: ${chat.lastMessage}`
+              : chat.lastMessage
+          }
+          hasMedia={chat.hasMedia}
+          imageUrl={
+            chat.type === "private"
+              ? (interlocutor?.avatarUrl ?? "")
+              : (chat.imageUrl ?? "")
+          }
+          pinned={pinned}
+          timeSent={dayjs(chat.lastMessageTime).format("HH:mm")}
+          title={
+            chat.type === "private"
+              ? (interlocutor?.name ?? "")
+              : (chat.name ?? "")
+          }
+          unreadCount={unreadMessages?.count}
+          onPress={handleSelectChat}
+        />
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        {/* Pin chat */}
+        {!archived && (
+          <ContextMenuItem
+            className="cursor-pointer space-x-2"
+            onClick={() => {
+              pinChat({
+                chatId: chat._id,
+              });
+            }}
+          >
+            <Pin size={20} />
+            <div>Pin</div>
+          </ContextMenuItem>
+        )}
 
-            {/* Archive chat */}
-            <ContextMenuItem
-              className="cursor-pointer space-x-2"
-              onClick={() => {
-                archiveChat({
-                  chatId: chat._id,
-                });
-              }}
-            >
-              <Archive size={20} />
-              <div>{archived ? "Remove from archive" : "Archive"}</div>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
-      )}
-    </>
+        {/* Archive chat */}
+        <ContextMenuItem
+          className="cursor-pointer space-x-2"
+          onClick={() => {
+            archiveChat({
+              chatId: chat._id,
+            });
+          }}
+        >
+          <Archive size={20} />
+          <div>{archived ? "Remove from archive" : "Archive"}</div>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }

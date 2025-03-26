@@ -28,17 +28,10 @@ export default function ChatInput() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Convex
-  const currentUser = useQuery(api.users.getCurrentUser);
   const generateUploadUrl = useMutation(api.chats.generateUploadUrl);
   const addUnreadMessage = useMutation(api.chats.addUnreadMessage);
   const sendMessage = useMutation(api.chats.sendMessage);
-  const getChatParticipants = useQuery(api.chats.getChatParticipants, {
-    chatId: selectedChat?.chatId as Id<"chats">,
-  });
-
-  const interlocutor = getChatParticipants?.find(
-    (p) => p?._id !== currentUser?._id,
-  );
+  const interlocutor = useQuery(api.chats.getInterlocutor, { chatId: selectedChat?.chatId as Id<"chats"> });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

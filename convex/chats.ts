@@ -52,6 +52,35 @@ export const getChats = query({
   },
 });
 
+export const getInterlocutor = query({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) return;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+
+    if (!user) return;
+
+    const participants = await ctx.db
+      .query("chat_participants")
+      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
+      .collect();
+
+    const interlocutor = participants.find((p) => p.userId !== user._id);
+
+    return await ctx.db.get(interlocutor?.userId as Id<"users">);
+  },
+});
+
 export const getChatParticipants = query({
   args: {
     chatId: v.id("chats"),
