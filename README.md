@@ -50,13 +50,13 @@ Whispo is a fast, secure, and intuitive real-time chat application designed to e
 
 ## 🛠️ Tech Stack
 
-- **Next.js 15** – React-based framework
-- **React** – JavaScript framework
-- **HeroUI** – Tailwind CSS component library
-- **Tailwind CSS** – Styling and UI design
-- **Clerk** – Secure authentication
-- **Convex** – Real-time database
-- **Typescript** – Static type checking
+- **Next.js 15**
+- **React**
+- **HeroUI**
+- **Tailwind CSS**
+- **Clerk**
+- **Convex**
+- **Typescript**
 
 ## 🚀 Fork the repository
 
