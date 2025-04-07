@@ -19,7 +19,7 @@ import { api } from "@/convex/_generated/api";
 import { useSelectedChat } from "@/zustand/selected-chat";
 import { groupMessagesByDate } from "@/utils/group-messages-by-date";
 
-const NUM_MESSAGES_TO_LOAD = 50;
+const NUM_MESSAGES_TO_LOAD = 20;
 
 export default function ChatMessages() {
   const { resolvedTheme } = useTheme();
