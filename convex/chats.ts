@@ -448,9 +448,22 @@ export const getMessages = query({
       .order("desc")
       .paginate(args.paginationOpts);
 
+    const filteredPage = results.page.filter(
+      (msg) => !deletedMessagesIds.includes(msg._id),
+    );
+
+    const pageWithMediaUrls = await Promise.all(
+      filteredPage.map(async (msg) => ({
+        ...msg,
+        ...(msg.mediaId && {
+          mediaUrl: await ctx.storage.getUrl(msg.mediaId),
+        }),
+      })),
+    );
+
     return {
       ...results,
-      page: results.page.filter((msg) => !deletedMessagesIds.includes(msg._id)), // Filter deleted messages
+      page: pageWithMediaUrls,
     };
   },
 });
@@ -658,16 +671,16 @@ export const generateUploadUrl = mutation({
   },
 });
 
-export const getMedia = query({
-  args: {
-    mediaId: v.optional(v.id("_storage")),
-  },
-  handler: async (ctx, args) => {
-    if (!args.mediaId) return;
+// export const getMedia = query({
+//   args: {
+//     mediaId: v.optional(v.id("_storage")),
+//   },
+//   handler: async (ctx, args) => {
+//     if (!args.mediaId) return;
 
-    return await ctx.storage.getUrl(args.mediaId);
-  },
-});
+//     return await ctx.storage.getUrl(args.mediaId);
+//   },
+// });
 
 // Unread messages
 export const getUnreadMessages = query({
