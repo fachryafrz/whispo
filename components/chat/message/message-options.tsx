@@ -1,19 +1,17 @@
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
-import { EllipsisVertical, Pencil, Reply, Trash2, Undo2 } from "lucide-react";
+import { Pencil, Reply, Trash2, Undo2 } from "lucide-react";
 import { useDisclosure } from "@heroui/modal";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useEditMessage } from "@/zustand/edit-message";
 import { useReplyMessage } from "@/zustand/reply-message";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import EditMessageModal from "@/components/modal/edit-message";
+import {
+  ContextMenuContent,
+  ContextMenuItem,
+} from "@/components/ui/context-menu";
 
 export default function MessageOptions({
   msg,
@@ -46,79 +44,74 @@ export default function MessageOptions({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger className="sticky -bottom-4 flex h-10 w-10 items-center justify-center rounded-full outline-none transition-all hover:bg-default/40">
-          <EllipsisVertical />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align={`center`}>
-          {/* Reply */}
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => {
-              setReplyMessageId(msg._id);
+      <ContextMenuContent>
+        {/* Reply */}
+        <ContextMenuItem
+          className="cursor-pointer gap-2"
+          onClick={() => {
+            setReplyMessageId(msg._id);
 
-              readMessage({
-                userId: currentUser?._id as Id<"users">,
-                chatId: msg.chatId as Id<"chats">,
-              });
-            }}
-          >
-            <Reply size={20} />
-            <div>Reply</div>
-          </DropdownMenuItem>
+            readMessage({
+              userId: currentUser?._id as Id<"users">,
+              chatId: msg.chatId as Id<"chats">,
+            });
+          }}
+        >
+          <Reply size={20} />
+          <div>Reply</div>
+        </ContextMenuItem>
 
-          {/* Options for message by current user */}
-          {msg.senderId === currentUser?._id ? (
-            <>
-              {/* If message is not unsent */}
-              {!msg.isUnsent && (
-                <>
-                  {/* Edit */}
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setMessage(msg.text);
-                      onOpen();
-                    }}
-                  >
-                    <Pencil size={20} />
-                    <div>Edit</div>
-                  </DropdownMenuItem>
+        {/* Options for message by current user */}
+        {msg.senderId === currentUser?._id ? (
+          <>
+            {/* If message is not unsent */}
+            {!msg.isUnsent && (
+              <>
+                {/* Edit */}
+                <ContextMenuItem
+                  className="cursor-pointer gap-2"
+                  onClick={() => {
+                    setMessage(msg.text);
+                    onOpen();
+                  }}
+                >
+                  <Pencil size={20} />
+                  <div>Edit</div>
+                </ContextMenuItem>
 
-                  {/* Unsend */}
-                  <DropdownMenuItem
-                    className="cursor-pointer text-danger hover:!bg-danger hover:!text-white"
-                    onClick={() => {
-                      unsendMessage({
-                        messageId: msg._id as Id<"chat_messages">,
-                        chatId: msg.chatId as Id<"chats">,
-                        index: index,
-                      });
-                    }}
-                  >
-                    <Undo2 size={20} />
-                    <div>Unsend</div>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </>
-          ) : null}
+                {/* Unsend */}
+                <ContextMenuItem
+                  className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
+                  onClick={() => {
+                    unsendMessage({
+                      messageId: msg._id as Id<"chat_messages">,
+                      chatId: msg.chatId as Id<"chats">,
+                      index: index,
+                    });
+                  }}
+                >
+                  <Undo2 size={20} />
+                  <div>Unsend</div>
+                </ContextMenuItem>
+              </>
+            )}
+          </>
+        ) : null}
 
-          {/* Delete */}
-          <DropdownMenuItem
-            className="cursor-pointer text-danger hover:!bg-danger hover:!text-white"
-            onClick={() => {
-              deleteMessage({
-                chatId: msg.chatId as Id<"chats">,
-                messageId: msg._id as Id<"chat_messages">,
-              });
-            }}
-          >
-            <Trash2 size={20} />
-            <div>Delete for me</div>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        {/* Delete */}
+        <ContextMenuItem
+          className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
+          onClick={() => {
+            deleteMessage({
+              chatId: msg.chatId as Id<"chats">,
+              messageId: msg._id as Id<"chat_messages">,
+            });
+          }}
+        >
+          <Trash2 size={20} />
+          <div>Delete for me</div>
+        </ContextMenuItem>
+      </ContextMenuContent>
 
       {/* NOTE: Keep this until this Issue is fixed: https://github.com/heroui-inc/heroui/issues/4786 */}
       {/* <Dropdown
