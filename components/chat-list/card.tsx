@@ -33,7 +33,7 @@ export default function ChatCard({
 
   return (
     <Button
-      className="h-auto w-full rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800"
+      className="h-auto w-full select-none rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800"
       variant="light"
       onPress={() => {
         onPress();
@@ -85,7 +85,7 @@ export default function ChatCard({
               </ReactMarkdown>
             </div>
           ) : (
-            <Skeleton className="h-5 rounded translate-y-1" />
+            <Skeleton className="h-5 translate-y-1 rounded" />
           )}
         </div>
 
@@ -98,7 +98,11 @@ export default function ChatCard({
             {/* Pinned/Unread Messages */}
             <div className="flex items-center gap-1">
               {pinned && <Pin size={20} />}
-              {unreadCount && <Chip className="h-5" size="sm">{unreadCount}</Chip>}
+              {unreadCount && (
+                <Chip className="h-5" size="sm">
+                  {unreadCount}
+                </Chip>
+              )}
             </div>
           </div>
         )}

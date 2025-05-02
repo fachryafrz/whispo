@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
-import { Pencil, Reply, Trash2, Undo2 } from "lucide-react";
+import { Copy, Pencil, Reply, Trash2, Undo2 } from "lucide-react";
 import { useDisclosure } from "@heroui/modal";
+import { addToast } from "@heroui/toast";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
@@ -30,21 +31,42 @@ export default function MessageOptions({
   const readMessage = useMutation(api.chats.readMessage);
   const deleteMessage = useMutation(api.chats.deleteMessage);
 
-  const [windowWidth, setWindowWidth] = useState(0);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(msg.text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset copy status after 2 seconds
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
+    if (!isCopied) return;
 
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    addToast({
+      title: "Copied",
+      description: "Message copied to clipboard",
+      color: "success",
+    });
+  }, [isCopied]);
 
   return (
     <>
       <ContextMenuContent>
+        {/* Copy Message */}
+        {!msg.isUnsent && (
+          <ContextMenuItem
+            className="cursor-pointer gap-2"
+            onClick={() => copyToClipboard()}
+          >
+            <Copy size={20} />
+            <div>Copy Message</div>
+          </ContextMenuItem>
+        )}
+
         {/* Reply */}
         <ContextMenuItem
           className="cursor-pointer gap-2"
