@@ -1,8 +1,15 @@
 import { SVGProps } from "react";
 
+import { Doc } from "@/convex/_generated/dataModel";
+
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
 };
+
+export interface ChatList {
+  pinned: Doc<"chats">[];
+  regular: Doc<"chats">[];
+}
 
 // export type Chat = {
 //   _id?: Id<"chats">;

@@ -14,7 +14,6 @@ export default function List() {
   const { open: openArchived } = useArchivedChats();
 
   // Convex
-  const pinnedChats = useQuery(api.chats.pinnedChats);
   const chats = useQuery(api.chats.getChats);
 
   return (
@@ -39,9 +38,7 @@ export default function List() {
       {/* List of chats */}
       <ul className={`h-full overflow-y-auto`}>
         {/* No chats */}
-        {((chats?.length === 0 && pinnedChats?.length === 0) ||
-          (chats?.every((chat) => !chat?.lastMessage) &&
-            pinnedChats?.every((chat) => !chat?.lastMessage))) && (
+        {chats?.pinned.length === 0 && chats?.regular.length === 0 && (
           <li className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-default-500">
             <h2 className="text-lg font-bold">No chats</h2>
             <p className="text-sm">Start a new chat</p>
@@ -49,18 +46,17 @@ export default function List() {
         )}
 
         {/* Pinned chats */}
-        {pinnedChats?.length! > 0 &&
-          pinnedChats!
-            .filter((chat) => chat?.lastMessage)
-            .sort((a, b) => b?.lastMessageTime! - a?.lastMessageTime!)
-            .map((chat) => (
-              <li key={chat?._id}>
-                <ChatListCard pinned chat={chat!} />
-              </li>
-            ))}
+        {chats?.pinned
+          ?.filter((chat) => chat?.lastMessage)
+          .sort((a, b) => b?.lastMessageTime! - a?.lastMessageTime!)
+          .map((chat) => (
+            <li key={chat?._id}>
+              <ChatListCard pinned chat={chat!} />
+            </li>
+          ))}
 
         {/* Chats */}
-        {chats
+        {chats?.regular
           ?.filter((chat) => chat?.lastMessage)
           .sort((a, b) => b?.lastMessageTime! - a?.lastMessageTime!)
           .map((chat) => (

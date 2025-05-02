@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "convex/react";
-import { useEffect, useState } from "react";
 import { Copy, Pencil, Reply, Trash2, Undo2 } from "lucide-react";
 import { useDisclosure } from "@heroui/modal";
 import { addToast } from "@heroui/toast";
@@ -31,27 +30,18 @@ export default function MessageOptions({
   const readMessage = useMutation(api.chats.readMessage);
   const deleteMessage = useMutation(api.chats.deleteMessage);
 
-  const [isCopied, setIsCopied] = useState(false);
-
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(msg.text);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000); // Reset copy status after 2 seconds
+      await navigator.clipboard.writeText(msg.text); // NOTE: Will get error on dev because it requires HTTPS
+      addToast({
+        title: "Copied",
+        description: "Message copied to clipboard",
+        color: "success",
+      });
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
   };
-
-  useEffect(() => {
-    if (!isCopied) return;
-
-    addToast({
-      title: "Copied",
-      description: "Message copied to clipboard",
-      color: "success",
-    });
-  }, [isCopied]);
 
   return (
     <>

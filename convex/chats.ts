@@ -2,7 +2,9 @@ import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 
 import { mutation, query } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
+
+import { ChatList } from "@/types";
 
 // Chats
 export const getChats = query({
@@ -19,36 +21,45 @@ export const getChats = query({
       )
       .unique();
 
-    if (!user) return [];
+    if (!user) return;
 
-    // Filter pinned chats
-    const pinnedChats = await ctx.db
-      .query("pinned_chats")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .collect();
+    // Get pinned & archived chat IDs
+    const [pinnedChats, archivedChats] = await Promise.all([
+      ctx.db
+        .query("pinned_chats")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .collect(),
+      ctx.db
+        .query("archived_chats")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .collect(),
+    ]);
 
-    const pinnedChatsIds = pinnedChats?.map((chat) => chat?.chatId);
-
-    // Filter archived chats
-    const archivedChats = await ctx.db
-      .query("archived_chats")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .collect();
-
-    const archivedChatsIds = archivedChats?.map((chat) => chat?.chatId);
+    const pinnedChatIds = pinnedChats.map((c) => c.chatId);
+    const archivedChatIds = archivedChats.map((c) => c.chatId);
 
     const userChats = await ctx.db
       .query("chat_participants")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    const chats = userChats.filter(
-      (chat) =>
-        !pinnedChatsIds?.includes(chat.chatId) &&
-        !archivedChatsIds?.includes(chat.chatId),
-    );
+    const chatIds = userChats.map((c) => c.chatId);
+    const chatDocs = await Promise.all(chatIds.map((id) => ctx.db.get(id)));
 
-    return await Promise.all(chats.map((chat) => ctx.db.get(chat.chatId)));
+    const pinned: Doc<"chats">[] = [];
+    const regular: Doc<"chats">[] = [];
+
+    for (const chat of chatDocs) {
+      if (!chat || archivedChatIds.includes(chat._id)) continue;
+
+      if (pinnedChatIds.includes(chat._id)) {
+        pinned.push(chat);
+      } else {
+        regular.push(chat);
+      }
+    }
+
+    return { pinned, regular } satisfies ChatList;
   },
 });
 
@@ -179,36 +190,6 @@ export const selectOrStartConversation = mutation({
     });
 
     return await ctx.db.get(chatId);
-  },
-});
-
-// Get pinned chats
-export const pinnedChats = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) return [];
-
-    const pinnedChats = await ctx.db
-      .query("pinned_chats")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .collect();
-
-    const chats = await Promise.all(
-      pinnedChats.map((pc) => ctx.db.get(pc.chatId)),
-    );
-
-    return chats;
   },
 });
 
