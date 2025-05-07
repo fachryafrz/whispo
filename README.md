@@ -63,7 +63,7 @@ git clone https://github.com/{your-username}/whispo.git
 
 cd whispo
 
-npm install
+pnpm install
 
 cp .env.example .env.local
 
