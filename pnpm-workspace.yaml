@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - '@clerk/shared'
+  - '@heroui/shared-utils'
+  - esbuild
+  - sharp
+  - unrs-resolver
