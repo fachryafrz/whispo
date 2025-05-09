@@ -67,7 +67,7 @@ pnpm install
 
 cp .env.example .env.local
 
-npm run dev
+pnpm dev
 ```
 
 ## 🤝 Contributing
