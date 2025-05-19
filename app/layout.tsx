@@ -7,11 +7,9 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
-import ChatList from "@/components/chat-list";
-import ImageCarousel from "@/components/modal/image-carousel";
-import Chat from "@/components/chat";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.name,
     template: `%s - ${siteConfig.name}`,
@@ -75,17 +73,7 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <ConvexClientProvider>
-            <main>
-              <div className={`relative flex h-svh`}>
-                <ChatList />
-
-                <Chat />
-
-                {children}
-              </div>
-
-              <ImageCarousel />
-            </main>
+            <main>{children}</main>
           </ConvexClientProvider>
         </Providers>
       </body>
