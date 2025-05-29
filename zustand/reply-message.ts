@@ -1,13 +1,15 @@
 import { create } from "zustand";
 
+import { ReplyToState } from "@/types";
+
 type ReplyMessage = {
-  replyMessageId: string | null;
-  setReplyMessageId: (message: string) => void;
+  replyMessage: ReplyToState | null;
+  setReplyMessage: (message: ReplyToState) => void;
   clearReplyTo: () => void;
 };
 
 export const useReplyMessage = create<ReplyMessage>((set) => ({
-  replyMessageId: null,
-  setReplyMessageId: (message) => set({ replyMessageId: message }),
-  clearReplyTo: () => set({ replyMessageId: null }),
+  replyMessage: null,
+  setReplyMessage: (message) => set({ replyMessage: message }),
+  clearReplyTo: () => set({ replyMessage: null }),
 }));

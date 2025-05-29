@@ -1,11 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { Doc } from "@/convex/_generated/dataModel";
+import { MessageWithMediaState } from "@/types";
 import { useImageCarousel } from "@/zustand/image-carousel";
 
-type ExtendedMessage = Doc<"chat_messages"> & { mediaUrl?: string };
-
-export default function Media({ msg }: { msg: ExtendedMessage }) {
+export default function Media({ msg }: { msg: MessageWithMediaState }) {
   const { openModal } = useImageCarousel();
 
   return (

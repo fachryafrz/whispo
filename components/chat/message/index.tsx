@@ -11,6 +11,7 @@ import ReplyTo from "./reply-to";
 
 import { Doc } from "@/convex/_generated/dataModel";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { MessageWithMediaState, ReplyToState } from "@/types";
 
 export default function Message({
   msg,
@@ -56,10 +57,14 @@ export default function Message({
         >
           <div className="space-y-2 p-2">
             {/* Reply to */}
-            {msg.replyTo && !msg.isUnsent && <ReplyTo msg={msg} />}
+            {msg.replyTo && !msg.isUnsent && (
+              <ReplyTo msg={msg.replyTo as unknown as ReplyToState} />
+            )}
 
             {/* Media */}
-            {msg.mediaId && !msg.isUnsent && <Media msg={msg} />}
+            {msg.mediaId && !msg.isUnsent && (
+              <Media msg={msg as MessageWithMediaState} />
+            )}
 
             {/* Text content */}
             <div className="flex gap-2">

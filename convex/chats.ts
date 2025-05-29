@@ -65,7 +65,7 @@ export const getChats = query({
 
 export const getInterlocutor = query({
   args: {
-    chatId: v.id("chats"),
+    chatId: v.optional(v.id("chats")),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -81,9 +81,11 @@ export const getInterlocutor = query({
 
     if (!user) return;
 
+    if (!args.chatId) return;
+
     const participants = await ctx.db
       .query("chat_participants")
-      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
+      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId as Id<"chats">))
       .collect();
 
     const interlocutor = participants.find((p) => p.userId !== user._id);
@@ -124,7 +126,7 @@ export const getChatParticipants = query({
 export const selectOrStartConversation = mutation({
   args: {
     type: v.string(), // "private" or "group"
-    targetId: v.id("users"),
+    targetId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -140,6 +142,8 @@ export const selectOrStartConversation = mutation({
 
     if (!user) return;
 
+    if (!args.targetId) return;
+
     // NOTE: Check if there is already a chat between the user and the target
     const existingUserChats = await ctx.db
       .query("chat_participants")
@@ -150,7 +154,7 @@ export const selectOrStartConversation = mutation({
 
     const existingTargetChats = await ctx.db
       .query("chat_participants")
-      .withIndex("by_user", (q) => q.eq("userId", args.targetId))
+      .withIndex("by_user", (q) => q.eq("userId", args.targetId as Id<"users">))
       .collect();
 
     const existingTargetChatsIds = existingTargetChats.map((p) => p.chatId);
@@ -434,27 +438,35 @@ export const getMessages = query({
     );
 
     const pageWithMediaUrls = await Promise.all(
-      filteredPage.map(async (msg) => ({
-        ...msg,
-        ...(msg.mediaId && {
-          mediaUrl: await ctx.storage.getUrl(msg.mediaId),
-        }),
-      })),
+      filteredPage.map(async (msg) => {
+        const replyTo = msg.replyTo && (await ctx.db.get(msg.replyTo));
+        const replySender =
+          replyTo?.senderId && (await ctx.db.get(replyTo.senderId));
+
+        return {
+          ...msg,
+          ...(msg.senderId && {
+            sender: await ctx.db.get(msg.senderId),
+          }),
+          ...(msg.mediaId && {
+            mediaUrl: await ctx.storage.getUrl(msg.mediaId),
+          }),
+          ...(msg.replyTo && {
+            replyTo: {
+              ...replyTo,
+              ...(replyTo?.senderId && {
+                sender: replySender,
+              }),
+            },
+          }),
+        };
+      }),
     );
 
     return {
       ...results,
       page: pageWithMediaUrls,
     };
-  },
-});
-
-export const getMessage = query({
-  args: {
-    messageId: v.id("chat_messages"),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.messageId);
   },
 });
 
@@ -651,17 +663,6 @@ export const generateUploadUrl = mutation({
     return await ctx.storage.generateUploadUrl();
   },
 });
-
-// export const getMedia = query({
-//   args: {
-//     mediaId: v.optional(v.id("_storage")),
-//   },
-//   handler: async (ctx, args) => {
-//     if (!args.mediaId) return;
-
-//     return await ctx.storage.getUrl(args.mediaId);
-//   },
-// });
 
 // Unread messages
 export const getUnreadMessages = query({

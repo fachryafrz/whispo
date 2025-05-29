@@ -11,6 +11,14 @@ export interface ChatList {
   regular: Doc<"chats">[];
 }
 
+export interface ReplyToState extends Doc<"chat_messages"> {
+  sender: Doc<"users">;
+}
+
+export interface MessageWithMediaState extends Doc<"chat_messages"> {
+  mediaUrl: string;
+}
+
 // export type Chat = {
 //   _id?: Id<"chats">;
 //   type: "private" | "group";

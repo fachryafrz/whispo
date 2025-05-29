@@ -17,7 +17,7 @@ import { useSelectedChat } from "@/zustand/selected-chat";
 export default function ChatInput() {
   // Zustand
   const { selectedChat } = useSelectedChat();
-  const { replyMessageId, clearReplyTo } = useReplyMessage();
+  const { replyMessage, clearReplyTo } = useReplyMessage();
 
   // State
   const formRef = useRef<HTMLFormElement>(null);
@@ -31,7 +31,9 @@ export default function ChatInput() {
   const generateUploadUrl = useMutation(api.chats.generateUploadUrl);
   const addUnreadMessage = useMutation(api.chats.addUnreadMessage);
   const sendMessage = useMutation(api.chats.sendMessage);
-  const interlocutor = useQuery(api.chats.getInterlocutor, { chatId: selectedChat?.chatId as Id<"chats"> });
+  const interlocutor = useQuery(api.chats.getInterlocutor, {
+    chatId: selectedChat?.chatId as Id<"chats">,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +62,7 @@ export default function ChatInput() {
     sendMessage({
       chatId: selectedChat?.chatId as Id<"chats">,
       text: text as string,
-      replyTo: (replyMessageId as Id<"chat_messages">) || undefined,
+      replyTo: (replyMessage?._id as Id<"chat_messages">) || undefined,
       mediaId: (storageId as Id<"_storage">) || undefined,
     });
 
@@ -88,7 +90,7 @@ export default function ChatInput() {
   return (
     <div className={`space-y-2 p-2`}>
       {/* Reply to */}
-      {replyMessageId && <ReplyTo />}
+      {replyMessage && <ReplyTo />}
 
       {/* Media */}
       {selectedImage && (

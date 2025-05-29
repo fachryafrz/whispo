@@ -12,6 +12,7 @@ import {
   ContextMenuContent,
   ContextMenuItem,
 } from "@/components/ui/context-menu";
+import { ReplyToState } from "@/types";
 
 export default function MessageOptions({
   msg,
@@ -22,7 +23,7 @@ export default function MessageOptions({
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { message, setMessage } = useEditMessage();
-  const { setReplyMessageId } = useReplyMessage();
+  const { setReplyMessage } = useReplyMessage();
 
   const currentUser = useQuery(api.users.getCurrentUser);
 
@@ -61,7 +62,7 @@ export default function MessageOptions({
         <ContextMenuItem
           className="cursor-pointer gap-2"
           onClick={() => {
-            setReplyMessageId(msg._id);
+            setReplyMessage(msg as ReplyToState);
 
             readMessage({
               userId: currentUser?._id as Id<"users">,
