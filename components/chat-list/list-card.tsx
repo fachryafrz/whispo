@@ -91,7 +91,7 @@ export function ChatListCard({
             }}
           >
             <Pin size={20} />
-            <div>Pin</div>
+            <div>{pinned ? "Unpin" : "Pin"}</div>
           </ContextMenuItem>
         )}
 
@@ -105,7 +105,7 @@ export function ChatListCard({
           }}
         >
           <Archive size={20} />
-          <div>{archived ? "Remove from archive" : "Archive"}</div>
+          <div>{archived ? "Unarchive" : "Archive"}</div>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
