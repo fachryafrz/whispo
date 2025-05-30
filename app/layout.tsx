@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 import { Providers } from "./providers";
 
@@ -77,6 +78,7 @@ export default function RootLayout({
           </ConvexClientProvider>
         </Providers>
       </body>
+      <GoogleAnalytics gaId={process.env.GA_MEASUREMENT_ID as string} />
     </html>
   );
 }
