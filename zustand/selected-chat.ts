@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { Id } from "@/convex/_generated/dataModel";
 
-type Chat = {
+export type Chat = {
   chatId: Id<"chats"> | null;
   type: "private" | "group";
   name?: string;

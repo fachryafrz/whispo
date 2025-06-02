@@ -5,6 +5,7 @@ import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 
 import { ChatList } from "@/types";
+import { Chat } from "@/zustand/selected-chat";
 
 // Chats
 export const getChats = query({
@@ -60,6 +61,47 @@ export const getChats = query({
     }
 
     return { pinned, regular } satisfies ChatList;
+  },
+});
+
+export const getChat = query({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) return;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+
+    if (!user) return;
+
+    const participants = await ctx.db
+      .query("chat_participants")
+      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId as Id<"chats">))
+      .collect();
+
+    const interlocutorId = participants.find((p) => p.userId !== user._id);
+
+    const interlocutor = await ctx.db.get(
+      interlocutorId?.userId as Id<"users">,
+    );
+
+    const chat = await ctx.db.get(args.chatId);
+
+    return {
+      chatId: chat?._id as Id<"chats">,
+      type: "private",
+      name: interlocutor?.name,
+      description: interlocutor?.username,
+      imageUrl: interlocutor?.avatarUrl,
+    } as Chat;
   },
 });
 

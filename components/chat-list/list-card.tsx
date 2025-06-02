@@ -1,6 +1,7 @@
 import { Archive, Pin } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 
 import {
   ContextMenu,
@@ -13,7 +14,7 @@ import ChatCard from "./card";
 
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useSelectedChat } from "@/zustand/selected-chat";
+import { Chat, useSelectedChat } from "@/zustand/selected-chat";
 
 export function ChatListCard({
   chat,
@@ -24,10 +25,15 @@ export function ChatListCard({
   pinned?: boolean;
   archived?: boolean;
 }) {
+  const router = useRouter();
+
   const { setSelectedChat } = useSelectedChat();
 
   // Convex
   const currentUser = useQuery(api.users.getCurrentUser);
+  const getChat = useQuery(api.chats.getChat, {
+    chatId: chat._id,
+  });
   const interlocutor = useQuery(api.chats.getInterlocutor, {
     chatId: chat._id,
   });
@@ -39,24 +45,21 @@ export function ChatListCard({
   const readMessage = useMutation(api.chats.readMessage);
 
   const handleSelectChat = () => {
-    setSelectedChat({
-      chatId: chat?._id as Id<"chats">,
-      type: "private",
-      name: interlocutor?.name,
-      description: interlocutor?.username,
-      imageUrl: interlocutor?.avatarUrl,
-    });
+    setSelectedChat(getChat as Chat);
 
     readMessage({
       chatId: chat._id as Id<"chats">,
       userId: currentUser?._id as Id<"users">,
     });
+
+    router.push(`/chat/${chat._id}`);
   };
 
   return (
     <ContextMenu>
       <ContextMenuTrigger>
         <ChatCard
+          chatId={chat._id}
           description={
             chat.lastMessageSender === currentUser?._id
               ? `You: ${chat.lastMessage}`

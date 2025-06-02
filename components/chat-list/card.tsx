@@ -1,12 +1,16 @@
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Pin, Image as ImageIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { Avatar } from "@heroui/avatar";
 import { Skeleton } from "@heroui/skeleton";
 
+import { Id } from "@/convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
+
 type ChatCardProps = {
+  chatId: Id<"chats">;
   title: string;
   description?: string;
   imageUrl: string;
@@ -19,6 +23,7 @@ type ChatCardProps = {
 };
 
 export default function ChatCard({
+  chatId,
   title,
   description = "...",
   imageUrl,
@@ -29,16 +34,17 @@ export default function ChatCard({
   hasMedia,
   onPress,
 }: ChatCardProps) {
-  const router = useRouter();
+  const pathname = usePathname();
+  const [, , id] = pathname.split("/");
 
   return (
     <Button
-      className="h-auto w-full select-none rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800"
+      className={cn(
+        "h-auto w-full select-none rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 disabled:bg-default/40 disabled:opacity-100 dark:border-neutral-800",
+      )}
+      isDisabled={id === chatId}
       variant="light"
-      onPress={() => {
-        onPress();
-        router.push("/chat");
-      }}
+      onPress={onPress}
     >
       <div className="grid w-full grid-cols-[40px_1fr_auto] items-center gap-2">
         {/* Avatar/Image */}

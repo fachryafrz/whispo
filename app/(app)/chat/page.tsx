@@ -1,5 +1,5 @@
-import SelectAChat from "@/components/chat/select-a-chat";
+import { redirect } from "next/navigation";
 
 export default function ChatPage() {
-  return <SelectAChat />;
+  redirect("/");
 }
