@@ -2,6 +2,7 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { ArrowLeft } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
 
 import ChatCard from "./card";
 
@@ -11,6 +12,8 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useSelectedChat } from "@/zustand/selected-chat";
 
 export default function SearchUser() {
+  const router = useRouter();
+
   // Zustand
   const { open, setOpen, query, setQuery } = useSearchUser();
   const { selectedChat, setSelectedChat } = useSelectedChat();
@@ -37,6 +40,8 @@ export default function SearchUser() {
       description: user.username,
       imageUrl: user.avatarUrl,
     });
+
+    router.push(`/chat/${chat?._id}`);
   };
 
   return (

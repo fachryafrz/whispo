@@ -9,6 +9,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/modal";
+import { useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useSelectedChat } from "@/zustand/selected-chat";
 
 export default function Options() {
+  const router = useRouter();
   const { selectedChat, clearSelectedChat } = useSelectedChat();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -29,6 +31,7 @@ export default function Options() {
   const handleClear = () => {
     clearChat({ chatId: selectedChat?.chatId as Id<"chats"> });
     clearSelectedChat();
+    router.push("/");
   };
 
   return (

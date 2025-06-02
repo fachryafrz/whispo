@@ -1,16 +1,16 @@
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Pin, Image as ImageIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { Avatar } from "@heroui/avatar";
 import { Skeleton } from "@heroui/skeleton";
 
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
+import { useSelectedChat } from "@/zustand/selected-chat";
 
 type ChatCardProps = {
-  chatId: Id<"chats">;
+  chatId?: Id<"chats">;
   title: string;
   description?: string;
   imageUrl: string;
@@ -34,15 +34,14 @@ export default function ChatCard({
   hasMedia,
   onPress,
 }: ChatCardProps) {
-  const pathname = usePathname();
-  const [, , id] = pathname.split("/");
+  const { selectedChat } = useSelectedChat();
 
   return (
     <Button
       className={cn(
-        "h-auto w-full select-none rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 disabled:bg-default/40 disabled:opacity-100 dark:border-neutral-800",
+        "h-auto w-full select-none rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800",
+        chatId && selectedChat?.chatId === chatId && "bg-default/40",
       )}
-      isDisabled={id === chatId}
       variant="light"
       onPress={onPress}
     >
