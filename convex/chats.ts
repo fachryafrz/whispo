@@ -4,7 +4,6 @@ import { paginationOptsValidator } from "convex/server";
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 
-import { ChatList } from "@/types";
 import { Chat } from "@/zustand/selected-chat";
 
 // Chats
@@ -60,7 +59,7 @@ export const getChats = query({
       }
     }
 
-    return { pinned, regular } satisfies ChatList;
+    return { pinned, regular };
   },
 });
 
