@@ -128,18 +128,24 @@ export default function Message({
               </div>
 
               {/* Time placeholder */}
-              <span
-                className={`pointer-events-none flex grow justify-end text-[10px] opacity-0`}
+              <div
+                className={`pointer-events-none space-x-1 text-[10px] opacity-0`}
               >
-                {dayjs(msg._creationTime).format("HH:mm")}
-              </span>
+                {/* Edited */}
+                {msg.isEdited && <span>Edited</span>}
+
+                <span>{dayjs(msg._creationTime).format("HH:mm A")}</span>
+              </div>
 
               {/* Time displayed */}
-              <span
-                className={`pointer-events-none absolute bottom-2 right-2 mt-1 text-[10px]`}
+              <div
+                className={`pointer-events-none absolute bottom-1 right-2 space-x-1 text-[10px]`}
               >
-                {dayjs(msg._creationTime).format("HH:mm")}
-              </span>
+                {/* Edited */}
+                {msg.isEdited && <span>Edited</span>}
+
+                <span>{dayjs(msg._creationTime).format("HH:mm A")}</span>
+              </div>
             </div>
           </div>
         </div>

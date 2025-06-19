@@ -99,15 +99,6 @@ export default function ChatMessages() {
                     isDifferentSenderPrev={isDifferentSenderPrev}
                     msg={msg}
                   />
-
-                  {/* Edited */}
-                  {msg.isEdited && (
-                    <span
-                      className={`flex text-xs ${msg.senderId === currentUser?._id ? "justify-end" : "justify-start"}`}
-                    >
-                      Edited
-                    </span>
-                  )}
                 </div>
               );
             })}
