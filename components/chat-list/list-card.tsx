@@ -1,6 +1,5 @@
 import { Archive, Pin } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
-import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 
 import {
@@ -15,6 +14,7 @@ import ChatCard from "./card";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Chat, useSelectedChat } from "@/zustand/selected-chat";
+import { formatChatTime } from "@/lib/utils";
 
 export function ChatListCard({
   chat,
@@ -72,7 +72,7 @@ export function ChatListCard({
               : (chat.imageUrl ?? "")
           }
           pinned={pinned}
-          timeSent={dayjs(chat.lastMessageTime).format("HH:mm")}
+          timeSent={formatChatTime(chat.lastMessageTime!)}
           title={
             chat.type === "private"
               ? (interlocutor?.name ?? "")
