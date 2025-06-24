@@ -1,4 +1,4 @@
-[![Whispo](https://fachryafrz.com/projects/whispo/cover.png)](https://whispo.fachryafrz.com)
+[![Whispo](https://fachryafrz.com/projects/whispo/chat.png)](https://whispo.fachryafrz.com)
 
 # Whispo – Real-time chat app
 
@@ -77,7 +77,3 @@ Contributions are welcome! Please fork the repository, make your changes, and su
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
-
-## 📸 Screenshots
-
-[![Whispo](https://fachryafrz.com/projects/whispo/chat.png)](https://whispo.fachryafrz.com)
