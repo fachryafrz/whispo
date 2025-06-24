@@ -2,7 +2,7 @@
 
 # Whispo – Real-time chat app
 
-Whispo is a fast, secure, and intuitive real-time chat application designed to enhance communication. With seamless authentication, real-time messaging, and an elegant UI, Whispo ensures a smooth chat experience for users.
+Whispo is a fast, secure, and intuitive chat application designed to enhance communication.
 
 ## ✨ Key Features
 
