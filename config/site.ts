@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig;
 export const siteConfig = {
   name: "Whispo",
   description:
-    "A fast, secure, and intuitive real-time chat application designed to enhance communication. With seamless authentication, real-time messaging, and an elegant UI, Whispo ensures a smooth chat experience for users.",
+    "A fast, secure, and intuitive chat application designed to enhance communication.",
   url:
     process.env.NODE_ENV === "production"
       ? "https://whispo.fachryafrz.com"
