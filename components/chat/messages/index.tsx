@@ -77,7 +77,7 @@ export default function ChatMessages() {
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div
             key={date}
-            className="flex w-full select-none flex-col-reverse items-center gap-1"
+            className="flex w-full flex-col-reverse items-center gap-1"
           >
             {/* Messages */}
             {msgs.map((msg, index) => {

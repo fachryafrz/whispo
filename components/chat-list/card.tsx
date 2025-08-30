@@ -39,7 +39,7 @@ export default function ChatCard({
   return (
     <Button
       className={cn(
-        "h-auto w-full select-none rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800",
+        "h-auto w-full rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800",
         chatId && selectedChat?.chatId === chatId && "bg-default/40",
       )}
       variant="light"
