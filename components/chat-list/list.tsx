@@ -1,7 +1,4 @@
-import { Button } from "@heroui/button";
-import { Plus } from "lucide-react";
 import { useQuery } from "convex/react";
-import { Tooltip } from "@heroui/tooltip";
 
 import { ChatListCard } from "./list-card";
 
@@ -10,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { useArchivedChats } from "@/zustand/archived-chats";
 
 export default function List() {
-  const { open: openSearchUser, setOpen: setOpenSearchUser } = useSearchUser();
+  const { open: openSearchUser } = useSearchUser();
   const { open: openArchived } = useArchivedChats();
 
   // Convex
@@ -20,21 +17,6 @@ export default function List() {
     <div
       className={`relative h-full transition-all duration-500 ${openSearchUser || openArchived ? "-translate-x-20" : "translate-x-0"}`}
     >
-      {/* Floating action button */}
-      <div className="absolute bottom-4 right-4 z-10">
-        <Tooltip content="New chat">
-          <Button
-            isIconOnly
-            className="h-14 w-14"
-            radius="full"
-            size="lg"
-            onPress={() => setOpenSearchUser(true)}
-          >
-            <Plus />
-          </Button>
-        </Tooltip>
-      </div>
-
       {/* List of chats */}
       <ul className={`h-full overflow-y-auto`}>
         {/* No chats */}

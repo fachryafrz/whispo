@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 
+import { createToken } from "@/actions/create-token";
+import { streamClient } from "@/lib/stream";
+
 export function useStoreUserEffect() {
   const { isLoading, isAuthenticated } = useConvexAuth();
   const { user } = useUser();
@@ -36,6 +39,29 @@ export function useStoreUserEffect() {
     // Make sure the effect reruns if the user logs in with
     // a different identity
   }, [isAuthenticated, storeUser, user?.id]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const init = async () => {
+      const token = await createToken(user.username as string);
+
+      await streamClient.connectUser(
+        {
+          id: user.username as string,
+          name: user.fullName || "Anonymous",
+          image: user.imageUrl as string,
+        },
+        token,
+      );
+    };
+
+    init();
+
+    return () => {
+      streamClient.disconnectUser();
+    };
+  }, [user]);
 
   // Combine the local state with the state from context
   return {

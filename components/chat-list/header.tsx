@@ -2,8 +2,8 @@ import { ClerkLoaded, ClerkLoading, UserButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import { Skeleton } from "@heroui/skeleton";
 import { Tooltip } from "@heroui/tooltip";
-import Link from "next/link";
 import { Archive, EllipsisVertical, Moon, Sun } from "lucide-react";
+import { useChatContext } from "stream-chat-react";
 
 import Logo from "../logo";
 import {
@@ -19,6 +19,7 @@ import { useArchivedChats } from "@/zustand/archived-chats";
 export default function ChatListHeader() {
   const { resolvedTheme, setTheme } = useTheme();
   const { open, setOpen } = useArchivedChats();
+  const { setActiveChannel } = useChatContext();
 
   const onChange = () => {
     resolvedTheme === "light" ? setTheme("dark") : setTheme("light");
@@ -98,11 +99,14 @@ export default function ChatListHeader() {
 
       {/* App Name */}
       <Tooltip content={siteConfig.name} placement="bottom">
-        <Link className="flex justify-self-center" href={`/`} prefetch={false}>
+        <button
+          className="flex justify-self-center"
+          onClick={() => setActiveChannel(undefined)}
+        >
           <Logo height={30} />
 
           <h1 className={`sr-only`}>{siteConfig.name}</h1>
-        </Link>
+        </button>
       </Tooltip>
 
       {/* User */}

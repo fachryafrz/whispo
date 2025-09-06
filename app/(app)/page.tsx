@@ -1,5 +1,5 @@
-import SelectAChat from "@/components/chat/select-a-chat";
+import Chat from "@/components/chat/new-index";
 
 export default function Home() {
-  return <SelectAChat />;
+  return <Chat />;
 }

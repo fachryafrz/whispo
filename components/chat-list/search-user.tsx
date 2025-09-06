@@ -1,47 +1,38 @@
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { ArrowLeft } from "lucide-react";
-import { useMutation, useQuery } from "convex/react";
-import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { useUser } from "@clerk/clerk-react";
+import { useChatContext } from "stream-chat-react";
 
 import ChatCard from "./card";
 
 import { useSearchUser } from "@/zustand/search-user";
 import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useSelectedChat } from "@/zustand/selected-chat";
+import { Doc } from "@/convex/_generated/dataModel";
+import { useCreateNewChat } from "@/hooks/use-create-new-chat";
 
 export default function SearchUser() {
-  const router = useRouter();
+  const createNewChat = useCreateNewChat();
+  const { user: currentUser } = useUser();
+  const { setActiveChannel } = useChatContext();
 
   // Zustand
   const { open, setOpen, query, setQuery } = useSearchUser();
-  const { selectedChat, setSelectedChat } = useSelectedChat();
 
   // Convex
   const users = useQuery(api.users.searchByUsername, {
     usernameQuery: query,
   });
-  const selectOrStartConversation = useMutation(
-    api.chats.selectOrStartConversation,
-  );
 
   // Functions
   const handleSelectUser = async (user: Doc<"users">) => {
-    const chat = await selectOrStartConversation({
-      type: "private",
-      targetId: user._id,
+    const channel = await createNewChat({
+      members: [currentUser?.username!, user.username],
+      createdBy: currentUser?.username!,
     });
 
-    setSelectedChat({
-      chatId: chat?._id as Id<"chats">,
-      type: "private",
-      name: user.name,
-      description: user.username,
-      imageUrl: user.avatarUrl,
-    });
-
-    router.push(`/chat/${chat?._id}`);
+    setActiveChannel(channel);
   };
 
   return (
