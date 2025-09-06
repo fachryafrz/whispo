@@ -4,13 +4,12 @@ import { Pin, Image as ImageIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Avatar } from "@heroui/avatar";
 import { Skeleton } from "@heroui/skeleton";
+import { useChatContext } from "stream-chat-react";
 
-import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { useSelectedChat } from "@/zustand/selected-chat";
 
 type ChatCardProps = {
-  chatId?: Id<"chats">;
+  chatId?: string;
   title: string;
   description?: string;
   imageUrl: string;
@@ -34,13 +33,13 @@ export default function ChatCard({
   hasMedia,
   onPress,
 }: ChatCardProps) {
-  const { selectedChat } = useSelectedChat();
+  const { channel: selectedChat } = useChatContext();
 
   return (
     <Button
       className={cn(
         "h-auto w-full rounded-none border-b border-default-200 p-4 text-start !outline-none last:border-b-0 dark:border-neutral-800",
-        chatId && selectedChat?.chatId === chatId && "bg-default/40",
+        chatId && selectedChat?.id === chatId && "bg-default/40",
       )}
       variant="light"
       onPress={onPress}
@@ -80,7 +79,7 @@ export default function ChatCard({
                   // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   p: ({ node, ...props }) => (
                     <p
-                      className={`overflow-hidden text-ellipsis whitespace-nowrap text-small ${unreadCount ? "font-bold text-white" : "text-default-500"}`}
+                      className={`overflow-hidden text-ellipsis whitespace-nowrap text-small ${unreadCount! > 0 ? "font-bold text-white" : "text-default-500"}`}
                       {...props}
                     />
                   ),
@@ -103,7 +102,7 @@ export default function ChatCard({
             {/* Pinned/Unread Messages */}
             <div className="flex items-center gap-1">
               {pinned && <Pin size={20} />}
-              {unreadCount && (
+              {unreadCount! > 0 && (
                 <Chip className="h-5" size="sm">
                   {unreadCount}
                 </Chip>

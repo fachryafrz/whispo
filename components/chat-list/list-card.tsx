@@ -1,6 +1,8 @@
-import { Archive, Pin } from "lucide-react";
-import { useMutation, useQuery } from "convex/react";
-import { useRouter } from "next/navigation";
+import { Archive, Pin, Trash2 } from "lucide-react";
+import { useChatContext } from "stream-chat-react";
+import { Channel } from "stream-chat";
+import { useSWRConfig } from "swr";
+import { useUser } from "@clerk/clerk-react";
 
 import {
   ContextMenu,
@@ -11,9 +13,6 @@ import {
 
 import ChatCard from "./card";
 
-import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { Chat, useSelectedChat } from "@/zustand/selected-chat";
 import { formatChatTime } from "@/lib/utils";
 
 export function ChatListCard({
@@ -21,64 +20,44 @@ export function ChatListCard({
   pinned,
   archived,
 }: {
-  chat: Doc<"chats">;
+  chat: Channel;
   pinned?: boolean;
   archived?: boolean;
 }) {
-  const router = useRouter();
-
-  const { setSelectedChat } = useSelectedChat();
-
-  // Convex
-  const currentUser = useQuery(api.users.getCurrentUser);
-  const getChat = useQuery(api.chats.getChat, {
-    chatId: chat._id,
-  });
-  const interlocutor = useQuery(api.chats.getInterlocutor, {
-    chatId: chat._id,
-  });
-  const pinChat = useMutation(api.chats.pinChat);
-  const archiveChat = useMutation(api.chats.archiveChat);
-  const unreadMessages = useQuery(api.chats.getUnreadMessages, {
-    chatId: chat._id as Id<"chats">,
-  });
-  const readMessage = useMutation(api.chats.readMessage);
+  const { setActiveChannel } = useChatContext();
+  const { mutate } = useSWRConfig();
+  const { user } = useUser();
 
   const handleSelectChat = () => {
-    setSelectedChat(getChat as Chat);
+    setActiveChannel(chat);
 
-    readMessage({
-      chatId: chat._id as Id<"chats">,
-      userId: currentUser?._id as Id<"users">,
-    });
-
-    router.push(`/chat/${chat._id}`);
+    chat.watch({ presence: true });
   };
+
+  const otherMember = Object.values(chat.state.members).find(
+    (m) => m.user_id !== user?.username,
+  );
 
   return (
     <ContextMenu>
       <ContextMenuTrigger>
         <ChatCard
-          chatId={chat._id}
+          chatId={chat.id}
           description={
-            chat.lastMessageSender === currentUser?._id
-              ? `You: ${chat.lastMessage}`
-              : chat.lastMessage
+            chat.lastMessage()?.user?.id === user?.username
+              ? `You: ${chat.lastMessage()?.text}`
+              : chat.lastMessage()?.text
           }
-          hasMedia={chat.hasMedia}
-          imageUrl={
-            chat.type === "private"
-              ? (interlocutor?.avatarUrl ?? "")
-              : (chat.imageUrl ?? "")
-          }
+          // hasMedia={chat.hasMedia}
+          imageUrl={otherMember?.user?.image!}
           pinned={pinned}
-          timeSent={formatChatTime(chat.lastMessageTime!)}
-          title={
-            chat.type === "private"
-              ? (interlocutor?.name ?? "")
-              : (chat.name ?? "")
+          timeSent={
+            chat.state.last_message_at
+              ? formatChatTime(chat.state.last_message_at!)
+              : ""
           }
-          unreadCount={unreadMessages?.count}
+          title={otherMember?.user?.name!}
+          unreadCount={chat.state.unreadCount}
           onPress={handleSelectChat}
         />
       </ContextMenuTrigger>
@@ -87,11 +66,11 @@ export function ChatListCard({
         {!archived && (
           <ContextMenuItem
             className="cursor-pointer space-x-2"
-            onClick={() => {
-              pinChat({
-                chatId: chat._id,
-              });
-            }}
+            // onClick={() => {
+            //   pinChat({
+            //     chatId: chat._id,
+            //   });
+            // }}
           >
             <Pin size={20} />
             <div>{pinned ? "Unpin" : "Pin"}</div>
@@ -101,14 +80,29 @@ export function ChatListCard({
         {/* Archive chat */}
         <ContextMenuItem
           className="cursor-pointer space-x-2"
-          onClick={() => {
-            archiveChat({
-              chatId: chat._id,
-            });
-          }}
+          // onClick={() => {
+          //   archiveChat({
+          //     chatId: chat._id,
+          //   });
+          // }}
         >
           <Archive size={20} />
           <div>{archived ? "Unarchive" : "Archive"}</div>
+        </ContextMenuItem>
+
+        {/* Delete chat */}
+        <ContextMenuItem
+          className="cursor-pointer space-x-2"
+          onClick={async () => {
+            setActiveChannel(undefined);
+
+            await chat.delete();
+
+            mutate("channels");
+          }}
+        >
+          <Trash2 size={20} />
+          <div>Delete</div>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

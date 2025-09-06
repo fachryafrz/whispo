@@ -37,7 +37,7 @@ export const useCreateNewChat = () => {
       created_by_id: createdBy,
     });
 
-    // await channel.watch({ presence: true });
+    await channel.watch({ presence: true });
 
     return channel;
   };
