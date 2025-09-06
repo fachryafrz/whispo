@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Channel, useChatContext } from "stream-chat-react";
 
 import ChatHeader from "./header";
 import ChatMessages from "./messages";
@@ -13,7 +14,9 @@ export default function Chat() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { selectedChat, clearSelectedChat, showChatRoom, setShowChatRoom } =
+  const { channel: selectedChat } = useChatContext();
+
+  const { clearSelectedChat, showChatRoom, setShowChatRoom } =
     useSelectedChat();
 
   useEffect(() => {
@@ -63,18 +66,28 @@ export default function Chat() {
 
   return (
     <>
-      {selectedChat && (
+      {selectedChat ? (
+        <div className="fixed inset-0 z-10 grow md:static md:z-0 [&>div>div]:h-full [&>div]:h-full">
+          <Channel>
+            <section
+              className={`flex h-full w-full flex-1 flex-col bg-white transition-all duration-500 dark:bg-black ${showChatRoom ? "translate-x-0" : "translate-x-full md:translate-x-0"}`}
+            >
+              {/* Header */}
+              <ChatHeader />
+
+              {/* Chat */}
+              <ChatMessages />
+
+              {/* Input */}
+              <ChatInput />
+            </section>
+          </Channel>
+        </div>
+      ) : (
         <section
-          className={`fixed inset-0 z-10 flex w-full flex-1 flex-col bg-white transition-all duration-500 dark:bg-black md:static md:z-0 ${showChatRoom ? "translate-x-0" : "translate-x-full md:translate-x-0"}`}
+          className={`hidden h-full place-content-center bg-neutral-100 text-default-500 dark:bg-neutral-950 md:grid md:grow`}
         >
-          {/* Header */}
-          <ChatHeader />
-
-          {/* Chat */}
-          <ChatMessages />
-
-          {/* Input */}
-          <ChatInput />
+          <h2 className="text-lg font-bold">Select a chat</h2>
         </section>
       )}
     </>

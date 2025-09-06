@@ -1,9 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { MessageWithMediaState } from "@/types";
+import { LocalMessage } from "stream-chat";
+
 import { useImageCarousel } from "@/zustand/image-carousel";
 
-export default function Media({ msg }: { msg: MessageWithMediaState }) {
+
+export default function Media({ msg }: { msg: LocalMessage }) {
   const { openModal } = useImageCarousel();
 
   return (
@@ -12,7 +14,7 @@ export default function Media({ msg }: { msg: MessageWithMediaState }) {
         className="relative overflow-hidden rounded-md"
         onClick={() =>
           openModal({
-            src: msg.mediaUrl as string,
+            src: msg.attachments![0].image_url as string,
             description: msg.text,
           })
         }
@@ -21,7 +23,7 @@ export default function Media({ msg }: { msg: MessageWithMediaState }) {
           alt=""
           className="max-h-[500px] object-cover"
           draggable={false}
-          src={msg.mediaUrl}
+          src={msg.attachments![0].image_url}
         />
       </button>
     </>

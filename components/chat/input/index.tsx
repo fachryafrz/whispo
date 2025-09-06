@@ -4,86 +4,77 @@ import { Textarea } from "@heroui/input";
 import { Paperclip, SendHorizontal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { addToast } from "@heroui/toast";
-import { useMutation, useQuery } from "convex/react";
+import { useChatContext } from "stream-chat-react";
+import { useSWRConfig } from "swr";
 
 import ReplyTo from "./reply-to";
 
-import { handleKeyDown } from "@/utils/handle-textarea-key-down";
 import { useReplyMessage } from "@/zustand/reply-message";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useSelectedChat } from "@/zustand/selected-chat";
+import { handleKeyDown } from "@/utils/handle-textarea-key-down";
+import { streamClient } from "@/lib/stream";
 
 export default function ChatInput() {
-  // Zustand
-  const { selectedChat } = useSelectedChat();
+  const { channel: selectedChat } = useChatContext();
   const { replyMessage, clearReplyTo } = useReplyMessage();
+  const { mutate } = useSWRConfig();
 
   // State
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
-  const [text, setText] = useState<string>();
+  const [text, setText] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Convex
-  const generateUploadUrl = useMutation(api.chats.generateUploadUrl);
-  const addUnreadMessage = useMutation(api.chats.addUnreadMessage);
-  const sendMessage = useMutation(api.chats.sendMessage);
-  const interlocutor = useQuery(api.chats.getInterlocutor, {
-    chatId: selectedChat?.chatId as Id<"chats">,
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!text!.trim()) return;
+    if (!text.trim() && !selectedImage) return;
+    if (!streamClient || !selectedChat) return;
 
     setIsLoading(true);
+    try {
+      let attachments: any[] = [];
 
-    let storageId;
+      if (selectedImage) {
+        // langsung upload via sendImage
+        const upload = await selectedChat.sendImage(selectedImage);
 
-    if (selectedImage) {
-      // Step 1: Get a short-lived upload URL
-      const postUrl = await generateUploadUrl();
+        attachments.push({
+          type: "image",
+          image_url: upload.file, // url public
+        });
+      }
 
-      // Step 2: POST the file to the URL
-      const result = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": selectedImage!.type },
-        body: selectedImage,
+      await selectedChat.sendMessage({
+        text,
+        attachments,
+        ...(replyMessage?._id && { parent_id: replyMessage._id }), // untuk reply
       });
-      const response = await result.json();
 
-      storageId = response.storageId;
+      mutate("channels");
+
+      // reset form
+      setText("");
+      setSelectedImage(null);
+      imageInput.current!.value = "";
+      clearReplyTo();
+    } catch (err) {
+      console.error("Send message failed", err);
+      addToast({
+        title: "Error",
+        description: "Failed to send message",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    sendMessage({
-      chatId: selectedChat?.chatId as Id<"chats">,
-      text: text as string,
-      replyTo: (replyMessage?._id as Id<"chat_messages">) || undefined,
-      mediaId: (storageId as Id<"_storage">) || undefined,
-    });
-
-    addUnreadMessage({
-      userId: interlocutor?._id as Id<"users">,
-      chatId: selectedChat?.chatId as Id<"chats">,
-      count: 1,
-    });
-
-    setText("");
-    clearReplyTo();
-    setSelectedImage(null);
-    imageInput.current!.value = "";
-    setIsLoading(false);
   };
 
   useEffect(() => {
     setText("");
     clearReplyTo();
     setSelectedImage(null);
-    imageInput.current!.value = "";
+    if (imageInput.current) imageInput.current.value = "";
     setIsLoading(false);
   }, [selectedChat]);
 
@@ -92,7 +83,7 @@ export default function ChatInput() {
       {/* Reply to */}
       {replyMessage && <ReplyTo />}
 
-      {/* Media */}
+      {/* Media preview */}
       {selectedImage && (
         <div className="ml-12 flex items-center gap-2">
           <div className="relative overflow-hidden rounded-md before:absolute before:inset-0 before:bg-black before:opacity-50">
@@ -102,7 +93,6 @@ export default function ChatInput() {
               draggable={false}
               src={URL.createObjectURL(selectedImage)}
             />
-
             <button
               className="absolute right-1 top-1"
               disabled={isLoading}
@@ -131,11 +121,9 @@ export default function ChatInput() {
             radius="full"
             type="button"
             variant="light"
-            onPress={() => {
-              imageInput.current?.click();
-            }}
+            onPress={() => imageInput.current?.click()}
           >
-            <Paperclip size={20} />
+            <Paperclip className="text-foreground" size={20} />
           </Button>
 
           <input
@@ -145,7 +133,10 @@ export default function ChatInput() {
             disabled={isLoading}
             type="file"
             onChange={(event) => {
-              if (event.target.files![0].size > 1024 * 1024) {
+              const file = event.target.files?.[0];
+
+              if (!file) return;
+              if (file.size > 1024 * 1024) {
                 addToast({
                   title: "File too large",
                   description: "File size must be less than 1MB",
@@ -153,13 +144,12 @@ export default function ChatInput() {
 
                 return;
               }
-
-              setSelectedImage(event.target.files![0]);
+              setSelectedImage(file);
             }}
           />
         </div>
 
-        {/* Message */}
+        {/* Textarea */}
         <Textarea
           ref={textareaRef}
           isDisabled={isLoading}

@@ -1,19 +1,15 @@
 import dayjs from "dayjs";
+import { LocalMessage } from "stream-chat";
 
-import { Doc } from "@/convex/_generated/dataModel";
+export const groupMessagesByDate = (messages: LocalMessage[]) => {
+  return messages.reduce((acc: Record<string, LocalMessage[]>, message) => {
+    const dateKey = dayjs(message.created_at).format("YYYY-MM-DD");
 
-export const groupMessagesByDate = (messages: Doc<"chat_messages">[]) => {
-  return messages.reduce(
-    (acc: { [key: string]: Doc<"chat_messages">[] }, message) => {
-      const dateKey = dayjs(message._creationTime).format("YYYY-MM-DD");
+    if (!acc[dateKey]) {
+      acc[dateKey] = [];
+    }
+    acc[dateKey].push(message);
 
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(message);
-
-      return acc;
-    },
-    {},
-  );
+    return acc;
+  }, {});
 };

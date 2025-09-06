@@ -1,4 +1,4 @@
-import { Archive, Pin, Trash2 } from "lucide-react";
+import { Archive, Pin } from "lucide-react";
 import { useChatContext } from "stream-chat-react";
 import { Channel } from "stream-chat";
 import { useSWRConfig } from "swr";
@@ -32,6 +32,8 @@ export function ChatListCard({
     setActiveChannel(chat);
 
     chat.watch({ presence: true });
+
+    mutate("channels");
   };
 
   const otherMember = Object.values(chat.state.members).find(
@@ -88,21 +90,6 @@ export function ChatListCard({
         >
           <Archive size={20} />
           <div>{archived ? "Unarchive" : "Archive"}</div>
-        </ContextMenuItem>
-
-        {/* Delete chat */}
-        <ContextMenuItem
-          className="cursor-pointer space-x-2"
-          onClick={async () => {
-            setActiveChannel(undefined);
-
-            await chat.delete();
-
-            mutate("channels");
-          }}
-        >
-          <Trash2 size={20} />
-          <div>Delete</div>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

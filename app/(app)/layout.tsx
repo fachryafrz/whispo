@@ -1,7 +1,6 @@
 "use client";
 
 import { Chat as StreamChat } from "stream-chat-react";
-import "stream-chat-react/dist/css/v2/index.css";
 
 import ImageCarousel from "@/components/modal/image-carousel";
 import { useStoreUserEffect } from "@/hooks/use-store-user";

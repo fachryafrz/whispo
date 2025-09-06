@@ -1,12 +1,9 @@
-import { useQuery } from "convex/react";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect } from "react";
 import useSWR from "swr";
 
 import { ChatListCard } from "./list-card";
 
 import { useSearchUser } from "@/zustand/search-user";
-import { api } from "@/convex/_generated/api";
 import { useArchivedChats } from "@/zustand/archived-chats";
 import { streamClient } from "@/lib/stream";
 
@@ -23,18 +20,11 @@ export default function List() {
   const { open: openSearchUser } = useSearchUser();
   const { open: openArchived } = useArchivedChats();
 
-  // Convex
-  const chats = useQuery(api.chats.getChats);
-
   const { user } = useUser();
 
   const { data: channels } = useSWR("channels", () =>
     fetchChannels(user?.username!),
   );
-
-  useEffect(() => {
-    console.log(channels);
-  }, [channels]);
 
   return (
     <div

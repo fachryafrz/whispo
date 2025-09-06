@@ -1,6 +1,5 @@
 import { Button } from "@heroui/button";
 import { EllipsisVertical, Trash2 } from "lucide-react";
-import { useMutation } from "convex/react";
 import {
   Modal,
   ModalContent,
@@ -9,7 +8,8 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/modal";
-import { useRouter } from "next/navigation";
+import { useChatContext } from "stream-chat-react";
+import { useSWRConfig } from "swr";
 
 import {
   DropdownMenu,
@@ -17,21 +17,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useSelectedChat } from "@/zustand/selected-chat";
 
 export default function Options() {
-  const router = useRouter();
-  const { selectedChat, clearSelectedChat } = useSelectedChat();
+  const { channel: selectedChat, setActiveChannel } = useChatContext();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { mutate } = useSWRConfig();
 
-  const clearChat = useMutation(api.chats.clearChat);
+  const handleClear = async () => {
+    setActiveChannel(undefined);
 
-  const handleClear = () => {
-    clearChat({ chatId: selectedChat?.chatId as Id<"chats"> });
-    clearSelectedChat();
-    router.push("/");
+    await selectedChat?.delete();
+
+    mutate("channels");
   };
 
   return (

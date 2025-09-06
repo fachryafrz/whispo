@@ -2,43 +2,43 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import dayjs from "dayjs";
 import { useState } from "react";
+import { LocalMessage } from "stream-chat";
+import { useUser } from "@clerk/clerk-react";
+import dayjs from "dayjs";
 
-import MessageOptions from "./message-options";
 import Media from "./media";
-import ReplyTo from "./reply-to";
 
-import { Doc } from "@/convex/_generated/dataModel";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { MessageWithMediaState, ReplyToState } from "@/types";
 
 export default function Message({
   msg,
-  currentUser,
   index,
   isDifferentSenderNext,
   isDifferentSenderPrev,
 }: {
-  msg: Doc<"chat_messages">;
-  currentUser: Doc<"users">;
+  msg: LocalMessage;
   index: number;
   isDifferentSenderPrev?: boolean;
   isDifferentSenderNext?: boolean;
 }) {
+  const { user: currentUser } = useUser();
+
   const [open, setOpen] = useState<boolean>(false);
+  const isMine = msg.user?.id === currentUser?.username;
+  const isEdited = dayjs(msg.updated_at).isAfter(dayjs(msg.created_at));
 
   return (
     <ContextMenu onOpenChange={setOpen}>
       <ContextMenuTrigger
         className={`group -mx-4 flex gap-1 px-4 transition-background ${
-          msg.senderId === currentUser?._id ? "justify-end" : "justify-start"
+          isMine ? "justify-end" : "justify-start"
         } ${open ? "bg-muted/80" : ""}`}
       >
         {/* Message */}
         <div
           className={`relative w-fit max-w-xs rounded-xl lg:max-w-lg xl:max-w-xl ${
-            msg.senderId === currentUser?._id
+            isMine
               ? `order-2 bg-black text-white dark:bg-white dark:text-black ${
                   isDifferentSenderPrev
                     ? "rounded-br-none"
@@ -46,7 +46,7 @@ export default function Message({
                       ? "rounded-tr-none"
                       : "rounded-r-none"
                 }`
-              : `order-1 bg-default ${
+              : `order-1 bg-default dark:bg-default-700 ${
                   isDifferentSenderPrev
                     ? "rounded-bl-none"
                     : isDifferentSenderNext
@@ -57,13 +57,13 @@ export default function Message({
         >
           <div className="space-y-2 p-2">
             {/* Reply to */}
-            {msg.replyTo && !msg.isUnsent && (
+            {/* {msg.replyTo && !msg.isUnsent && (
               <ReplyTo msg={msg.replyTo as unknown as ReplyToState} />
-            )}
+            )} */}
 
             {/* Media */}
-            {msg.mediaId && !msg.isUnsent && (
-              <Media msg={msg as MessageWithMediaState} />
+            {msg.attachments?.length! > 0 && !msg.deleted_at && (
+              <Media msg={msg} />
             )}
 
             {/* Text content */}
@@ -76,7 +76,7 @@ export default function Message({
               {/* NOTE: Kalau pakai markdown, gabisa multiple line breaks */}
               <div
                 className={`prose text-sm ${
-                  msg.senderId === currentUser?._id
+                  isMine
                     ? "text-white marker:text-white dark:text-black dark:marker:text-black"
                     : "text-black marker:text-black dark:text-white dark:marker:text-white"
                 }`}
@@ -91,7 +91,7 @@ export default function Message({
                       <a
                         {...props}
                         className={`${
-                          msg.senderId === currentUser?._id
+                          isMine
                             ? "text-white dark:text-black"
                             : "text-black dark:text-white"
                         }`}
@@ -106,7 +106,7 @@ export default function Message({
                       <blockquote
                         {...props}
                         className={`${
-                          msg.senderId === currentUser?._id
+                          isMine
                             ? "text-white dark:text-black"
                             : "text-black dark:text-white"
                         }`}
@@ -123,18 +123,16 @@ export default function Message({
                   }}
                   remarkPlugins={[remarkGfm, remarkBreaks]}
                 >
-                  {msg.isUnsent ? `_message was unsent_` : msg.text}
+                  {msg.deleted_at ? `_message was unsent_` : msg.text}
                 </ReactMarkdown>
               </div>
 
               {/* Time placeholder */}
-              <div
-                className={`pointer-events-none space-x-1 text-[10px] opacity-0`}
-              >
+              <div className={`select-none space-x-1 text-[10px] opacity-0`}>
                 {/* Edited */}
-                {msg.isEdited && <span>Edited</span>}
+                {isEdited && <span>Edited</span>}
 
-                <span>{dayjs(msg._creationTime).format("HH:mm A")}</span>
+                <span>{dayjs(msg.created_at).format("HH:mm A")}</span>
               </div>
 
               {/* Time displayed */}
@@ -142,16 +140,16 @@ export default function Message({
                 className={`pointer-events-none absolute bottom-1 right-2 space-x-1 text-[10px]`}
               >
                 {/* Edited */}
-                {msg.isEdited && <span>Edited</span>}
+                {isEdited && <span>Edited</span>}
 
-                <span>{dayjs(msg._creationTime).format("HH:mm A")}</span>
+                <span>{dayjs(msg.created_at).format("HH:mm A")}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* ContextMenuContent */}
-        <MessageOptions index={index} msg={msg} />
+        {/* <MessageOptions index={index} msg={msg} /> */}
         {/* ContextMenuContent */}
       </ContextMenuTrigger>
     </ContextMenu>

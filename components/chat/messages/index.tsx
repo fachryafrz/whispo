@@ -1,55 +1,36 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@heroui/button";
 import { ArrowDown } from "lucide-react";
-import {
-  PaginatedQueryReference,
-  usePaginatedQuery,
-  useQuery,
-} from "convex/react";
-import { Spinner } from "@heroui/spinner";
 import { useInView } from "react-intersection-observer";
 import { useTheme } from "next-themes";
 import dayjs from "dayjs";
 import { Chip } from "@heroui/chip";
+import { useChannelStateContext, useChatContext } from "stream-chat-react";
 
 import Message from "../message";
 
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { api } from "@/convex/_generated/api";
-import { useSelectedChat } from "@/zustand/selected-chat";
 import { groupMessagesByDate } from "@/utils/group-messages-by-date";
 
 const NUM_MESSAGES_TO_LOAD = 20;
 
 export default function ChatMessages() {
   const { resolvedTheme } = useTheme();
-  const { selectedChat } = useSelectedChat();
+  const { channel: selectedChat } = useChatContext();
   const { ref: loadMoreRef, inView } = useInView();
-
-  const currentUser = useQuery(api.users.getCurrentUser);
-
-  const {
-    results: messages,
-    status,
-    loadMore,
-  } = usePaginatedQuery(
-    api.chats.getMessages as PaginatedQueryReference, // NOTE: Potential bug when filtering out deleted messages
-    { chatId: selectedChat?.chatId as Id<"chats"> },
-    { initialNumItems: NUM_MESSAGES_TO_LOAD },
-  );
+  const { messages } = useChannelStateContext();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState<boolean>(false);
 
-  const groupedMessages = groupMessagesByDate(messages);
+  const groupedMessages = groupMessagesByDate(messages!.slice().reverse()!);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     setShowScrollBtn(e.currentTarget.scrollTop < 0);
   };
 
-  useEffect(() => {
-    if (inView) loadMore(NUM_MESSAGES_TO_LOAD);
-  }, [inView]);
+  // useEffect(() => {
+  //   if (inView) loadMore(NUM_MESSAGES_TO_LOAD);
+  // }, [inView]);
 
   return (
     <div className="relative flex-1 overflow-y-hidden before:absolute before:inset-0 before:bg-[url(/background/doodle.avif)] before:bg-[size:350px] before:bg-repeat before:opacity-15 before:dark:invert md:before:opacity-10">
@@ -83,17 +64,17 @@ export default function ChatMessages() {
             {msgs.map((msg, index) => {
               const prevMsg = msgs[index + 1];
               const nextMsg = msgs[index - 1];
-              const isDifferentSenderPrev = prevMsg?.senderId !== msg.senderId;
-              const isDifferentSenderNext = nextMsg?.senderId !== msg.senderId;
+
+              const isDifferentSenderPrev = prevMsg?.user?.id !== msg.user?.id;
+              const isDifferentSenderNext = nextMsg?.user?.id !== msg.user?.id;
 
               return (
                 <div
-                  key={msg._id}
+                  key={msg.id} // GetStream pakai id
                   className={`w-full ${isDifferentSenderPrev ? "pt-4" : "pt-0"}`}
                 >
                   {/* Message bubble */}
                   <Message
-                    currentUser={currentUser as Doc<"users">}
                     index={index}
                     isDifferentSenderNext={isDifferentSenderNext}
                     isDifferentSenderPrev={isDifferentSenderPrev}
@@ -111,11 +92,11 @@ export default function ChatMessages() {
         ))}
 
         {/* Paginate messages */}
-        {status === "CanLoadMore" && (
+        {/* {status === "CanLoadMore" && (
           <div ref={loadMoreRef}>
             <Spinner color={resolvedTheme === "dark" ? "white" : "primary"} />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

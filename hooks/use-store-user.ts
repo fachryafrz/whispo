@@ -58,9 +58,9 @@ export function useStoreUserEffect() {
 
     init();
 
-    return () => {
-      streamClient.disconnectUser();
-    };
+    // return () => {
+    //   streamClient.disconnectUser();
+    // };
   }, [user]);
 
   // Combine the local state with the state from context

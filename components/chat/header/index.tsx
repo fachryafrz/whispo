@@ -1,18 +1,23 @@
 import { Button } from "@heroui/button";
 import { addToast } from "@heroui/toast";
 import { ArrowLeft, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Avatar } from "@heroui/avatar";
+import { useChatContext } from "stream-chat-react";
+import { useUser } from "@clerk/clerk-react";
 
 import Options from "./options";
 
 import { useSelectedChat } from "@/zustand/selected-chat";
 
 export default function ChatHeader() {
-  const router = useRouter();
+  const { channel: selectedChat, setActiveChannel } = useChatContext();
+  const { user } = useUser();
 
-  const { selectedChat, clearSelectedChat, showChatRoom, setShowChatRoom } =
-    useSelectedChat();
+  const { setShowChatRoom } = useSelectedChat();
+
+  const otherMember = Object.values(selectedChat!.state.members).find(
+    (m) => m.user_id !== user?.username,
+  );
 
   return (
     <div className={`p-4`}>
@@ -27,31 +32,30 @@ export default function ChatHeader() {
             setShowChatRoom(false);
 
             setTimeout(() => {
-              clearSelectedChat();
-              router.back();
+              setActiveChannel(undefined);
             }, 500);
           }}
         >
-          <ArrowLeft />
+          <ArrowLeft className="text-foreground" />
         </Button>
 
         {/* Avatar/Image */}
         <Avatar
           className={`[&_img]:pointer-events-none`}
-          name={selectedChat?.name}
-          src={selectedChat?.imageUrl}
+          name={otherMember?.user?.name}
+          src={otherMember?.user?.image}
         />
 
         {/* Content */}
         <div className="min-w-0 flex-1">
           {/* Name */}
           <h2 className="line-clamp-1 text-small font-bold">
-            {selectedChat?.name}
+            {otherMember?.user?.name}
           </h2>
 
           {/* Text */}
           <p className="overflow-hidden text-ellipsis whitespace-nowrap text-small text-default-500">
-            {selectedChat?.description}
+            {otherMember?.user?.online ? "Online" : "Offline"}
           </p>
         </div>
 
@@ -72,7 +76,7 @@ export default function ChatHeader() {
               })
             }
           >
-            <Search size={20} />
+            <Search className="text-foreground" size={20} />
           </Button>
 
           {/* Other options */}
