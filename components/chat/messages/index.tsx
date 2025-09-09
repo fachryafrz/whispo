@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@heroui/button";
 import { ArrowDown } from "lucide-react";
 import { useInView } from "react-intersection-observer";
@@ -32,10 +32,6 @@ export default function ChatMessages() {
   // useEffect(() => {
   //   if (inView) loadMore(NUM_MESSAGES_TO_LOAD);
   // }, [inView]);
-
-  useEffect(() => {
-    console.log(groupedMessages);
-  }, [groupedMessages]);
 
   return (
     <div className="relative flex-1 overflow-y-hidden before:absolute before:inset-0 before:bg-[url(/background/doodle.avif)] before:bg-[size:350px] before:bg-repeat before:opacity-15 before:dark:invert md:before:opacity-10">
