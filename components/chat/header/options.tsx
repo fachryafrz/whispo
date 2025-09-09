@@ -24,7 +24,7 @@ export default function Options() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex h-10 w-10 items-center justify-center rounded-full outline-none transition-all hover:bg-default/40">
+        <DropdownMenuTrigger className="hidden h-10 w-10 items-center justify-center rounded-full outline-none transition-all hover:bg-default/40 md:flex">
           <EllipsisVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
