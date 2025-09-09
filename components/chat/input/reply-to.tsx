@@ -1,10 +1,12 @@
 import { Button } from "@heroui/button";
 import { Reply, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useUser } from "@clerk/clerk-react";
 
 import { useReplyMessage } from "@/zustand/reply-message";
 
 export default function ReplyTo() {
+  const { user } = useUser();
   const { replyMessage, clearReplyTo } = useReplyMessage();
 
   return (
@@ -15,10 +17,13 @@ export default function ReplyTo() {
       </div>
 
       {/* Reply info */}
-      <div className="pointer-events-none flex-1 space-y-1 rounded-md bg-default p-2 text-xs">
+      <div className="pointer-events-none flex-1 space-y-1 rounded-md bg-default p-2 text-xs dark:bg-default-700">
         {/* Title */}
         <span className="block font-semibold">
-          Reply to {replyMessage?.sender.username}
+          Reply to{" "}
+          {replyMessage?.user?.id === user?.username
+            ? "yourself"
+            : replyMessage?.user?.name}
         </span>
 
         {/* Content */}
@@ -35,7 +40,7 @@ export default function ReplyTo() {
               ),
             }}
           >
-            {replyMessage?.isUnsent
+            {replyMessage?.deleted_at
               ? `_message was unsent_`
               : replyMessage?.text}
           </ReactMarkdown>
@@ -44,7 +49,7 @@ export default function ReplyTo() {
 
       {/* Clear */}
       <Button isIconOnly radius="full" variant="light" onPress={clearReplyTo}>
-        <X size={20} />
+        <X className="text-foreground" size={20} />
       </Button>
     </div>
   );

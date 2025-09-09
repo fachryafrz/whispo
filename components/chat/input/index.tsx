@@ -48,7 +48,7 @@ export default function ChatInput() {
       await selectedChat.sendMessage({
         text,
         attachments,
-        ...(replyMessage?._id && { parent_id: replyMessage._id }), // untuk reply
+        ...(replyMessage && { quoted_message_id: replyMessage.id }), // untuk reply
       });
 
       mutate("channels");

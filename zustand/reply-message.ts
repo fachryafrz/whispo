@@ -1,10 +1,9 @@
 import { create } from "zustand";
-
-import { ReplyToState } from "@/types";
+import { LocalMessage } from "stream-chat";
 
 type ReplyMessage = {
-  replyMessage: ReplyToState | null;
-  setReplyMessage: (message: ReplyToState) => void;
+  replyMessage: LocalMessage | null;
+  setReplyMessage: (message: LocalMessage) => void;
   clearReplyTo: () => void;
 };
 

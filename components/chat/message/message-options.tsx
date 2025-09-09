@@ -1,10 +1,9 @@
-import { useMutation, useQuery } from "convex/react";
 import { Copy, Pencil, Reply, Trash2, Undo2 } from "lucide-react";
 import { useDisclosure } from "@heroui/modal";
 import { addToast } from "@heroui/toast";
+import { LocalMessage } from "stream-chat";
+import { useUser } from "@clerk/clerk-react";
 
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { api } from "@/convex/_generated/api";
 import { useEditMessage } from "@/zustand/edit-message";
 import { useReplyMessage } from "@/zustand/reply-message";
 import EditMessageModal from "@/components/modal/edit-message";
@@ -12,28 +11,32 @@ import {
   ContextMenuContent,
   ContextMenuItem,
 } from "@/components/ui/context-menu";
-import { ReplyToState } from "@/types";
+
 
 export default function MessageOptions({
   msg,
   index,
 }: {
-  msg: Doc<"chat_messages">;
+  msg: LocalMessage;
   index: number;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { message, setMessage } = useEditMessage();
   const { setReplyMessage } = useReplyMessage();
 
-  const currentUser = useQuery(api.users.getCurrentUser);
+  const { user: currentUser } = useUser();
 
-  const unsendMessage = useMutation(api.chats.unsendMessage);
-  const readMessage = useMutation(api.chats.readMessage);
-  const deleteMessage = useMutation(api.chats.deleteMessage);
+  const isMine = msg.user?.id === currentUser?.username;
+
+  // const currentUser = useQuery(api.users.getCurrentUser);
+
+  // const unsendMessage = useMutation(api.chats.unsendMessage);
+  // const readMessage = useMutation(api.chats.readMessage);
+  // const deleteMessage = useMutation(api.chats.deleteMessage);
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(msg.text); // NOTE: Will get error on dev because it requires HTTPS
+      await navigator.clipboard.writeText(msg.text!); // NOTE: Will get error on dev because it requires HTTPS
       addToast({
         title: "Copied",
         description: "Message copied to clipboard",
@@ -48,7 +51,7 @@ export default function MessageOptions({
     <>
       <ContextMenuContent>
         {/* Copy Message */}
-        {!msg.isUnsent && (
+        {!msg.deleted_at && (
           <ContextMenuItem
             className="cursor-pointer gap-2"
             onClick={() => copyToClipboard()}
@@ -62,12 +65,12 @@ export default function MessageOptions({
         <ContextMenuItem
           className="cursor-pointer gap-2"
           onClick={() => {
-            setReplyMessage(msg as ReplyToState);
+            setReplyMessage(msg);
 
-            readMessage({
-              userId: currentUser?._id as Id<"users">,
-              chatId: msg.chatId as Id<"chats">,
-            });
+            // readMessage({
+            //   userId: currentUser?._id as Id<"users">,
+            //   chatId: msg.chatId as Id<"chats">,
+            // });
           }}
         >
           <Reply size={20} />
@@ -75,16 +78,16 @@ export default function MessageOptions({
         </ContextMenuItem>
 
         {/* Options for message by current user */}
-        {msg.senderId === currentUser?._id ? (
+        {isMine ? (
           <>
             {/* If message is not unsent */}
-            {!msg.isUnsent && (
+            {!msg.deleted_at && (
               <>
                 {/* Edit */}
                 <ContextMenuItem
                   className="cursor-pointer gap-2"
                   onClick={() => {
-                    setMessage(msg.text);
+                    setMessage(msg.text!);
                     onOpen();
                   }}
                 >
@@ -96,11 +99,11 @@ export default function MessageOptions({
                 <ContextMenuItem
                   className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
                   onClick={() => {
-                    unsendMessage({
-                      messageId: msg._id as Id<"chat_messages">,
-                      chatId: msg.chatId as Id<"chats">,
-                      index: index,
-                    });
+                    // unsendMessage({
+                    //   messageId: msg._id as Id<"chat_messages">,
+                    //   chatId: msg.chatId as Id<"chats">,
+                    //   index: index,
+                    // });
                   }}
                 >
                   <Undo2 size={20} />
@@ -115,10 +118,10 @@ export default function MessageOptions({
         <ContextMenuItem
           className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
           onClick={() => {
-            deleteMessage({
-              chatId: msg.chatId as Id<"chats">,
-              messageId: msg._id as Id<"chat_messages">,
-            });
+            // deleteMessage({
+            //   chatId: msg.chatId as Id<"chats">,
+            //   messageId: msg._id as Id<"chat_messages">,
+            // });
           }}
         >
           <Trash2 size={20} />

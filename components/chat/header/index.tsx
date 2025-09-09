@@ -47,10 +47,15 @@ export default function ChatHeader() {
         />
 
         {/* Content */}
-        <div className="min-w-0 flex-1">
+        <div className="group min-w-0 flex-1">
           {/* Name */}
-          <h2 className="line-clamp-1 text-small font-bold">
-            {otherMember?.user?.name}
+          <h2 className="relative line-clamp-1 text-small font-bold">
+            <span className="transition-all group-hover:opacity-0">
+              {otherMember?.user?.name}
+            </span>
+            <span className="absolute inset-0 opacity-0 transition-all group-hover:opacity-100">
+              {otherMember?.user?.id}
+            </span>
           </h2>
 
           {/* Text */}

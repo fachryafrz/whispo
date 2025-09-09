@@ -8,6 +8,8 @@ import { useUser } from "@clerk/clerk-react";
 import dayjs from "dayjs";
 
 import Media from "./media";
+import MessageOptions from "./message-options";
+import ReplyTo from "./reply-to";
 
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 
@@ -57,9 +59,9 @@ export default function Message({
         >
           <div className="space-y-2 p-2">
             {/* Reply to */}
-            {/* {msg.replyTo && !msg.isUnsent && (
-              <ReplyTo msg={msg.replyTo as unknown as ReplyToState} />
-            )} */}
+            {msg.quoted_message_id && !msg.deleted_at && (
+              <ReplyTo msg={msg.quoted_message} />
+            )}
 
             {/* Media */}
             {msg.attachments?.length! > 0 && !msg.deleted_at && (
@@ -149,7 +151,7 @@ export default function Message({
         </div>
 
         {/* ContextMenuContent */}
-        {/* <MessageOptions index={index} msg={msg} /> */}
+        <MessageOptions index={index} msg={msg} />
         {/* ContextMenuContent */}
       </ContextMenuTrigger>
     </ContextMenu>

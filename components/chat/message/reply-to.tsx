@@ -1,13 +1,16 @@
 import ReactMarkdown from "react-markdown";
+import { LocalMessage } from "stream-chat";
 
-import { ReplyToState } from "@/types";
-
-export default function ReplyTo({ msg }: { msg: ReplyToState }) {
+export default function ReplyTo({
+  msg,
+}: {
+  msg: LocalMessage["quoted_message"];
+}) {
   return (
     <div className="pointer-events-none space-y-1 rounded-md bg-white p-2 text-xs text-black dark:bg-black dark:text-white">
       {/* Title */}
       <div>
-        Reply to <strong>{msg.sender.username}</strong>
+        Reply to <strong>{msg?.user?.name}</strong>
       </div>
 
       {/* Content */}
@@ -24,7 +27,7 @@ export default function ReplyTo({ msg }: { msg: ReplyToState }) {
             ),
           }}
         >
-          {msg.isUnsent ? `_message was unsent_` : msg.text}
+          {msg?.deleted_at ? `_message was unsent_` : msg?.text}
         </ReactMarkdown>
       </div>
     </div>
