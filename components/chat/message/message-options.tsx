@@ -12,7 +12,6 @@ import {
   ContextMenuItem,
 } from "@/components/ui/context-menu";
 
-
 export default function MessageOptions({
   msg,
   index,
@@ -21,18 +20,12 @@ export default function MessageOptions({
   index: number;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { message, setMessage } = useEditMessage();
+  const { setMessage } = useEditMessage();
   const { setReplyMessage } = useReplyMessage();
 
   const { user: currentUser } = useUser();
 
   const isMine = msg.user?.id === currentUser?.username;
-
-  // const currentUser = useQuery(api.users.getCurrentUser);
-
-  // const unsendMessage = useMutation(api.chats.unsendMessage);
-  // const readMessage = useMutation(api.chats.readMessage);
-  // const deleteMessage = useMutation(api.chats.deleteMessage);
 
   const copyToClipboard = async () => {
     try {
@@ -66,11 +59,6 @@ export default function MessageOptions({
           className="cursor-pointer gap-2"
           onClick={() => {
             setReplyMessage(msg);
-
-            // readMessage({
-            //   userId: currentUser?._id as Id<"users">,
-            //   chatId: msg.chatId as Id<"chats">,
-            // });
           }}
         >
           <Reply size={20} />
@@ -235,13 +223,7 @@ export default function MessageOptions({
       {/* NOTE: Keep this until this Issue is fixed: https://github.com/heroui-inc/heroui/issues/4786 */}
 
       {/* Edit message modal */}
-      <EditMessageModal
-        isOpen={isOpen}
-        message={message}
-        msg={msg}
-        setMessage={setMessage}
-        onOpenChange={onOpenChange}
-      />
+      <EditMessageModal isOpen={isOpen} msg={msg} onOpenChange={onOpenChange} />
     </>
   );
 }

@@ -10,26 +10,34 @@ import { Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { useRef } from "react";
 import { LocalMessage } from "stream-chat";
+import { useSWRConfig } from "swr";
 
 import { handleKeyDown } from "@/utils/handle-textarea-key-down";
-
+import { streamClient } from "@/lib/stream";
+import { useEditMessage } from "@/zustand/edit-message";
 
 export default function EditMessageModal({
   msg,
-  message,
-  setMessage,
   isOpen,
   onOpenChange,
 }: {
   msg: LocalMessage;
-  message: string | null;
-  setMessage: (message: string) => void;
   isOpen: boolean;
   onOpenChange: () => void;
 }) {
+  const { mutate } = useSWRConfig();
+  const { message, setMessage } = useEditMessage();
+
   const formRef = useRef<HTMLFormElement>(null);
 
-  // const editMessage = useMutation(api.chats.editMessage);
+  const handleSubmit = async () => {
+    await streamClient.updateMessage({
+      id: msg.id,
+      text: message!,
+    });
+
+    mutate("channels");
+  };
 
   return (
     <Modal
@@ -51,11 +59,7 @@ export default function EditMessageModal({
                 onSubmit={(e) => {
                   e.preventDefault();
 
-                  // editMessage({
-                  //   messageId: msg._id as Id<"chat_messages">,
-                  //   chatId: msg.chatId as Id<"chats">,
-                  //   text: message as string,
-                  // });
+                  handleSubmit();
 
                   onClose();
                 }}
