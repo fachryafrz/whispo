@@ -36,6 +36,7 @@ export default function Message({
         className={`group -mx-4 flex gap-1 px-4 transition-background ${
           isMine ? "justify-end" : "justify-start"
         } ${open ? "bg-muted/80" : ""}`}
+        disabled={!!msg.deleted_at}
       >
         {/* Message */}
         <div
@@ -132,7 +133,7 @@ export default function Message({
               {/* Time placeholder */}
               <div className={`select-none space-x-1 text-[10px] opacity-0`}>
                 {/* Edited */}
-                {isEdited && <span>Edited</span>}
+                {isEdited && !msg.deleted_at && <span>Edited</span>}
 
                 <span>{dayjs(msg.created_at).format("HH:mm A")}</span>
               </div>
@@ -142,7 +143,7 @@ export default function Message({
                 className={`pointer-events-none absolute bottom-1 right-2 space-x-1 text-[10px]`}
               >
                 {/* Edited */}
-                {isEdited && <span>Edited</span>}
+                {isEdited && !msg.deleted_at && <span>Edited</span>}
 
                 <span>{dayjs(msg.created_at).format("HH:mm A")}</span>
               </div>
@@ -151,7 +152,7 @@ export default function Message({
         </div>
 
         {/* ContextMenuContent */}
-        <MessageOptions index={index} msg={msg} />
+        <MessageOptions msg={msg} />
         {/* ContextMenuContent */}
       </ContextMenuTrigger>
     </ContextMenu>

@@ -1,4 +1,4 @@
-import { Copy, Pencil, Reply, Trash2, Undo2 } from "lucide-react";
+import { Copy, Pencil, Reply, Undo2 } from "lucide-react";
 import { useDisclosure } from "@heroui/modal";
 import { addToast } from "@heroui/toast";
 import { LocalMessage } from "stream-chat";
@@ -11,14 +11,9 @@ import {
   ContextMenuContent,
   ContextMenuItem,
 } from "@/components/ui/context-menu";
+import { streamClient } from "@/lib/stream";
 
-export default function MessageOptions({
-  msg,
-  index,
-}: {
-  msg: LocalMessage;
-  index: number;
-}) {
+export default function MessageOptions({ msg }: { msg: LocalMessage }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { setMessage } = useEditMessage();
   const { setReplyMessage } = useReplyMessage();
@@ -55,15 +50,17 @@ export default function MessageOptions({
         )}
 
         {/* Reply */}
-        <ContextMenuItem
-          className="cursor-pointer gap-2"
-          onClick={() => {
-            setReplyMessage(msg);
-          }}
-        >
-          <Reply size={20} />
-          <div>Reply</div>
-        </ContextMenuItem>
+        {!msg.deleted_at && (
+          <ContextMenuItem
+            className="cursor-pointer gap-2"
+            onClick={() => {
+              setReplyMessage(msg);
+            }}
+          >
+            <Reply size={20} />
+            <div>Reply</div>
+          </ContextMenuItem>
+        )}
 
         {/* Options for message by current user */}
         {isMine ? (
@@ -86,12 +83,8 @@ export default function MessageOptions({
                 {/* Unsend */}
                 <ContextMenuItem
                   className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
-                  onClick={() => {
-                    // unsendMessage({
-                    //   messageId: msg._id as Id<"chat_messages">,
-                    //   chatId: msg.chatId as Id<"chats">,
-                    //   index: index,
-                    // });
+                  onClick={async () => {
+                    await streamClient.deleteMessage(msg.id);
                   }}
                 >
                   <Undo2 size={20} />
@@ -103,18 +96,15 @@ export default function MessageOptions({
         ) : null}
 
         {/* Delete */}
-        <ContextMenuItem
+        {/* <ContextMenuItem
           className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
-          onClick={() => {
-            // deleteMessage({
-            //   chatId: msg.chatId as Id<"chats">,
-            //   messageId: msg._id as Id<"chat_messages">,
-            // });
+          onClick={async () => {
+            await streamClient.deleteMessage(msg.id, true);
           }}
         >
           <Trash2 size={20} />
-          <div>Delete for me</div>
-        </ContextMenuItem>
+          <div>Delete</div>
+        </ContextMenuItem> */}
       </ContextMenuContent>
 
       {/* NOTE: Keep this until this Issue is fixed: https://github.com/heroui-inc/heroui/issues/4786 */}

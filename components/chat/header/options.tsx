@@ -1,5 +1,5 @@
 import { Button } from "@heroui/button";
-import { EllipsisVertical, Trash2 } from "lucide-react";
+import { EllipsisVertical, PanelLeftClose } from "lucide-react";
 import {
   Modal,
   ModalContent,
@@ -9,7 +9,6 @@ import {
   useDisclosure,
 } from "@heroui/modal";
 import { useChatContext } from "stream-chat-react";
-import { useSWRConfig } from "swr";
 
 import {
   DropdownMenu,
@@ -21,15 +20,6 @@ import {
 export default function Options() {
   const { channel: selectedChat, setActiveChannel } = useChatContext();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { mutate } = useSWRConfig();
-
-  const handleClear = async () => {
-    setActiveChannel(undefined);
-
-    await selectedChat?.delete();
-
-    mutate("channels");
-  };
 
   return (
     <>
@@ -39,12 +29,21 @@ export default function Options() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => {
+              setActiveChannel(undefined);
+            }}
+          >
+            <PanelLeftClose size={20} />
+            <div>Close chat</div>
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem
             className="cursor-pointer text-danger hover:!bg-danger hover:!text-white"
             onClick={onOpen}
           >
             <Trash2 size={20} />
             <div>Clear chat</div>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -96,7 +95,14 @@ export default function Options() {
                 <Button color="default" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="danger" onPress={handleClear}>
+                <Button
+                  color="danger"
+                  onPress={async () => {
+                    setActiveChannel(undefined);
+
+                    await selectedChat?.delete();
+                  }}
+                >
                   Yes, clear
                 </Button>
               </ModalFooter>

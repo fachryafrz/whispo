@@ -35,8 +35,6 @@ export default function EditMessageModal({
       id: msg.id,
       text: message!,
     });
-
-    mutate("channels");
   };
 
   return (

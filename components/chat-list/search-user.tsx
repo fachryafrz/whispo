@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useUser } from "@clerk/clerk-react";
 import { useChatContext } from "stream-chat-react";
-import { useSWRConfig } from "swr";
 import { useEffect } from "react";
 
 import ChatCard from "./card";
@@ -18,7 +17,6 @@ export default function SearchUser() {
   const createNewChat = useCreateNewChat();
   const { user: currentUser } = useUser();
   const { setActiveChannel } = useChatContext();
-  const { mutate } = useSWRConfig();
 
   // Zustand
   const { open, setOpen, query, setQuery } = useSearchUser();
@@ -34,8 +32,6 @@ export default function SearchUser() {
       members: [currentUser?.username!, user.username],
       createdBy: currentUser?.username!,
     });
-
-    mutate("channels");
 
     setActiveChannel(channel);
   };

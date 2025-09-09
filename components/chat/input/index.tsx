@@ -5,7 +5,6 @@ import { Paperclip, SendHorizontal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { addToast } from "@heroui/toast";
 import { useChatContext } from "stream-chat-react";
-import { useSWRConfig } from "swr";
 
 import ReplyTo from "./reply-to";
 
@@ -16,7 +15,6 @@ import { streamClient } from "@/lib/stream";
 export default function ChatInput() {
   const { channel: selectedChat } = useChatContext();
   const { replyMessage, clearReplyTo } = useReplyMessage();
-  const { mutate } = useSWRConfig();
 
   // State
   const formRef = useRef<HTMLFormElement>(null);
@@ -50,8 +48,6 @@ export default function ChatInput() {
         attachments,
         ...(replyMessage && { quoted_message_id: replyMessage.id }), // untuk reply
       });
-
-      mutate("channels");
 
       // reset form
       setText("");

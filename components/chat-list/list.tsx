@@ -7,23 +7,17 @@ import { useSearchUser } from "@/zustand/search-user";
 import { useArchivedChats } from "@/zustand/archived-chats";
 import { streamClient } from "@/lib/stream";
 
-const fetchChannels = async (username: string) => {
-  const channels = await streamClient.queryChannels(
-    { type: "messaging", members: { $in: [username] } },
-    { last_message_at: -1 },
-  );
-
-  return channels;
-};
-
 export default function List() {
   const { open: openSearchUser } = useSearchUser();
   const { open: openArchived } = useArchivedChats();
 
   const { user } = useUser();
 
-  const { data: channels } = useSWR("channels", () =>
-    fetchChannels(user?.username!),
+  const { data: channels } = useSWR("channels", async () =>
+    await streamClient.queryChannels(
+      { type: "messaging", members: { $in: [user?.username!] } },
+      { last_message_at: -1 },
+    ),
   );
 
   return (

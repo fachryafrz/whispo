@@ -1,7 +1,6 @@
 import { Archive, Pin } from "lucide-react";
 import { useChatContext } from "stream-chat-react";
 import { Channel } from "stream-chat";
-import { useSWRConfig } from "swr";
 import { useUser } from "@clerk/clerk-react";
 
 import {
@@ -25,20 +24,21 @@ export function ChatListCard({
   archived?: boolean;
 }) {
   const { setActiveChannel } = useChatContext();
-  const { mutate } = useSWRConfig();
   const { user } = useUser();
 
-  const handleSelectChat = () => {
+  const handleSelectChat = async () => {
     setActiveChannel(chat);
 
-    chat.watch({ presence: true });
-
-    mutate("channels");
+    await chat.watch({ presence: true });
   };
 
   const otherMember = Object.values(chat.state.members).find(
     (m) => m.user_id !== user?.username,
   );
+
+  const message = chat.lastMessage()?.deleted_at
+    ? "_message was unsent_"
+    : chat.lastMessage()?.text;
 
   return (
     <ContextMenu>
@@ -47,8 +47,8 @@ export function ChatListCard({
           chatId={chat.id}
           description={
             chat.lastMessage()?.user?.id === user?.username
-              ? `You: ${chat.lastMessage()?.text}`
-              : chat.lastMessage()?.text
+              ? `You: ${message}`
+              : message
           }
           // hasMedia={chat.hasMedia}
           imageUrl={otherMember?.user?.image!}
