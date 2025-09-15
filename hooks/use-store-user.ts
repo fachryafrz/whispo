@@ -37,6 +37,30 @@ export function useStoreUserEffect() {
     // a different identity
   }, [isAuthenticated, storeUser, user?.id]);
 
+  // NOTE: Use this if you want to use chat messaging with getstream
+  // useEffect(() => {
+  //   if (!user) return;
+
+  //   const init = async () => {
+  //     const token = await createToken(user.username!);
+
+  //     await streamClient.connectUser(
+  //       {
+  //         id: user.username as string,
+  //         name: user.fullName || "Anonymous",
+  //         image: user.imageUrl as string,
+  //       },
+  //       token,
+  //     );
+  //   };
+
+  //   init();
+
+  //   return () => {
+  //     streamClient.disconnectUser();
+  //   };
+  // }, [user]);
+
   // Combine the local state with the state from context
   return {
     isLoading: isLoading || (isAuthenticated && userId === null),
