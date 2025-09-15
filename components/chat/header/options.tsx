@@ -1,5 +1,5 @@
 import { Button } from "@heroui/button";
-import { EllipsisVertical, Trash2 } from "lucide-react";
+import { EllipsisVertical, PanelLeftClose, Search } from "lucide-react";
 import { useMutation } from "convex/react";
 import {
   Modal,
@@ -10,6 +10,7 @@ import {
   useDisclosure,
 } from "@heroui/modal";
 import { useRouter } from "next/navigation";
+import { addToast } from "@heroui/toast";
 
 import {
   DropdownMenu,
@@ -42,12 +43,36 @@ export default function Options() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => {
+              clearSelectedChat();
+              router.push("/");
+            }}
+          >
+            <PanelLeftClose size={20} />
+            <div>Close chat</div>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => {
+              addToast({
+                title: "Search messages",
+                description:
+                  "Search through your messages. This feature is coming soon.",
+                color: "warning",
+              });
+            }}
+          >
+            <Search size={20} />
+            <div>Search</div>
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem
             className="cursor-pointer text-danger hover:!bg-danger hover:!text-white"
             onClick={onOpen}
           >
             <Trash2 size={20} />
             <div>Clear chat</div>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
 

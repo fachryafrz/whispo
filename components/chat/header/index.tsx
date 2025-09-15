@@ -1,6 +1,5 @@
 import { Button } from "@heroui/button";
-import { addToast } from "@heroui/toast";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Phone, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@heroui/avatar";
 
@@ -57,22 +56,30 @@ export default function ChatHeader() {
 
         {/* CTA */}
         <div className="flex items-end gap-1">
-          {/* Search messages */}
+          {/* Video Call */}
           <Button
             disableRipple
             isIconOnly
             radius="full"
             variant="light"
-            onPress={() =>
-              addToast({
-                title: "Search messages",
-                description:
-                  "Search through your messages. This feature is coming soon.",
-                color: "warning",
-              })
-            }
+            onPress={() => {
+              router.push(`/call/${selectedChat?.chatId}?video=true`);
+            }}
           >
-            <Search size={20} />
+            <Video size={20} />
+          </Button>
+
+          {/* Call */}
+          <Button
+            disableRipple
+            isIconOnly
+            radius="full"
+            variant="light"
+            onPress={() => {
+              router.push(`/call/${selectedChat?.chatId}`);
+            }}
+          >
+            <Phone size={20} />
           </Button>
 
           {/* Other options */}
