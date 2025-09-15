@@ -1,46 +1,23 @@
-import { useUser } from "@clerk/clerk-react";
-import useSWR from "swr";
-
-import { ChatListCard } from "./list-card";
+import { ChannelListMessengerProps } from "stream-chat-react";
 
 import { useSearchUser } from "@/zustand/search-user";
 import { useArchivedChats } from "@/zustand/archived-chats";
-import { streamClient } from "@/lib/stream";
+import { cn } from "@/lib/utils";
 
-export default function List() {
+export default function List(
+  props: ChannelListMessengerProps & { children?: React.ReactNode },
+) {
   const { open: openSearchUser } = useSearchUser();
   const { open: openArchived } = useArchivedChats();
 
-  const { user } = useUser();
-
-  const { data: channels } = useSWR("channels", async () =>
-    await streamClient.queryChannels(
-      { type: "messaging", members: { $in: [user?.username!] } },
-      { last_message_at: -1 },
-    ),
-  );
-
   return (
     <div
-      className={`relative h-full transition-all duration-500 ${openSearchUser || openArchived ? "-translate-x-20" : "translate-x-0"}`}
+      className={cn(
+        `relative h-full transition-all duration-500`,
+        openSearchUser || openArchived ? "-translate-x-20" : "translate-x-0",
+      )}
     >
-      {/* List of chats */}
-      <ul className={`h-full overflow-y-auto`}>
-        {/* No chats */}
-        {channels?.length === 0 && (
-          <li className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-default-500">
-            <h2 className="text-lg font-bold">No chats</h2>
-            <p className="text-sm">Start a new chat</p>
-          </li>
-        )}
-
-        {/* Chats */}
-        {channels?.map((channel) => (
-          <li key={channel.id}>
-            <ChatListCard chat={channel!} />
-          </li>
-        ))}
-      </ul>
+      <div className={`h-full overflow-y-auto`}>{props.children}</div>
     </div>
   );
 }

@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@heroui/button";
-import { ArrowLeft } from "lucide-react";
 import {
   Channel,
-  ChannelHeader,
   MessageInput,
   MessageList,
   Thread,
   useChatContext,
   Window,
 } from "stream-chat-react";
+
+import ChatHeader from "./header";
+import ChatInput from "./input";
 
 export default function Chat() {
   const { channel, setActiveChannel } = useChatContext();
@@ -21,21 +21,11 @@ export default function Chat() {
         <div className="absolute inset-0 md:static md:grow">
           <Channel>
             <Window>
-              <div className="flex items-center px-2">
-                <Button
-                  isIconOnly
-                  className="border-0 md:hidden"
-                  radius="full"
-                  variant="ghost"
-                  onPress={() => setActiveChannel(undefined)}
-                >
-                  <ArrowLeft />
-                </Button>
-
-                <ChannelHeader />
+              <ChatHeader />
+              <div className="relative overflow-y-hidden bg-background before:pointer-events-none before:absolute before:inset-0 before:bg-[url(/background/doodle.avif)] before:bg-[size:350px] before:bg-repeat before:opacity-15 before:dark:invert md:before:opacity-10">
+                <MessageList />
               </div>
-              <MessageList />
-              <MessageInput />
+              <MessageInput Input={ChatInput} />
             </Window>
             <Thread />
           </Channel>

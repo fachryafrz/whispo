@@ -4,10 +4,13 @@ import { Tooltip } from "@heroui/tooltip";
 import { Button } from "@heroui/button";
 import { Plus } from "lucide-react";
 import { Skeleton } from "@heroui/skeleton";
+import { ChannelList } from "stream-chat-react";
+import { useUser } from "@clerk/clerk-react";
 
 import ArchivedChats from "./archived-chats";
 import ChatListHeader from "./header";
 import SearchUser from "./search-user";
+import { ChatListCard } from "./list-card";
 import List from "./list";
 
 import { useSearchUser } from "@/zustand/search-user";
@@ -15,6 +18,7 @@ import { useStoreUserEffect } from "@/hooks/use-store-user";
 
 export default function ChatList() {
   const { isLoading } = useStoreUserEffect();
+  const { user } = useUser();
 
   const { setOpen: setOpenSearchUser } = useSearchUser();
 
@@ -41,7 +45,14 @@ export default function ChatList() {
             ))}
           </div>
         ) : (
-          <List />
+          <ChannelList
+            List={List}
+            Preview={ChatListCard}
+            filters={{ type: "messaging", members: { $in: [user?.username!] } }}
+            options={{ presence: true }}
+            setActiveChannelOnMount={false}
+            sort={{ last_message_at: -1 }}
+          />
         )}
 
         {/* Floating action button */}

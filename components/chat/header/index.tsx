@@ -10,17 +10,17 @@ import Options from "./options";
 import { useSelectedChat } from "@/zustand/selected-chat";
 
 export default function ChatHeader() {
-  const { channel: selectedChat, setActiveChannel } = useChatContext();
+  const { channel, setActiveChannel } = useChatContext();
   const { user } = useUser();
 
   const { setShowChatRoom } = useSelectedChat();
 
-  const otherMember = Object.values(selectedChat!.state.members).find(
+  const otherMember = Object.values(channel!.state.members).find(
     (m) => m.user_id !== user?.username,
   );
 
   return (
-    <div className={`p-4`}>
+    <div className={`grow p-4 bg-background`}>
       <div className="flex items-center gap-2">
         {/* Back Button (Mobile) */}
         <Button
@@ -49,7 +49,7 @@ export default function ChatHeader() {
         {/* Content */}
         <div className="group min-w-0 flex-1">
           {/* Name */}
-          <h2 className="relative line-clamp-1 text-small font-bold">
+          <h2 className="relative line-clamp-1 text-small font-bold text-foreground">
             <span className="transition-all group-hover:opacity-0">
               {otherMember?.user?.name}
             </span>

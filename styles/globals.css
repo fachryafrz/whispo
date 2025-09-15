@@ -12,6 +12,14 @@
   height: 2.5rem;
 }
 
+.str-chat {
+  @apply !border-0 !bg-transparent;
+}
+
+.str-chat__list {
+  @apply !bg-transparent;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

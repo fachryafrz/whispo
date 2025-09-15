@@ -1,6 +1,5 @@
 import { Archive, Pin } from "lucide-react";
-import { useChatContext } from "stream-chat-react";
-import { Channel } from "stream-chat";
+import { ChannelPreviewUIComponentProps } from "stream-chat-react";
 import { useUser } from "@clerk/clerk-react";
 
 import {
@@ -14,58 +13,55 @@ import ChatCard from "./card";
 
 import { formatChatTime } from "@/lib/utils";
 
-export function ChatListCard({
-  chat,
-  pinned,
-  archived,
-}: {
-  chat: Channel;
-  pinned?: boolean;
-  archived?: boolean;
-}) {
-  const { setActiveChannel } = useChatContext();
+export function ChatListCard(
+  props: ChannelPreviewUIComponentProps & {
+    pinned?: boolean;
+    archived?: boolean;
+  },
+) {
+  const { channel, setActiveChannel } = props;
   const { user } = useUser();
 
-  const handleSelectChat = async () => {
-    setActiveChannel(chat);
-
-    await chat.watch({ presence: true });
-  };
-
-  const otherMember = Object.values(chat.state.members).find(
+  const otherMember = Object.values(channel.state.members).find(
     (m) => m.user_id !== user?.username,
   );
 
-  const message = chat.lastMessage()?.deleted_at
+  const message = channel.lastMessage()?.deleted_at
     ? "_message was unsent_"
-    : chat.lastMessage()?.text;
+    : channel.lastMessage()?.text;
+
+  const handleSelectChat = async () => {
+    setActiveChannel?.(channel);
+
+    await channel.watch({ presence: true });
+  };
 
   return (
     <ContextMenu>
       <ContextMenuTrigger>
         <ChatCard
-          chatId={chat.id}
+          chatId={channel.id}
           description={
-            chat.lastMessage()?.user?.id === user?.username
+            channel.lastMessage()?.user?.id === user?.username
               ? `You: ${message}`
               : message
           }
           // hasMedia={chat.hasMedia}
           imageUrl={otherMember?.user?.image!}
-          pinned={pinned}
+          // pinned={pinned}
           timeSent={
-            chat.state.last_message_at
-              ? formatChatTime(chat.state.last_message_at!)
+            channel.state.last_message_at
+              ? formatChatTime(channel.state.last_message_at!)
               : ""
           }
           title={otherMember?.user?.name!}
-          unreadCount={chat.state.unreadCount}
+          unreadCount={channel.state.unreadCount}
           onPress={handleSelectChat}
         />
       </ContextMenuTrigger>
       <ContextMenuContent>
         {/* Pin chat */}
-        {!archived && (
+        {!props.archived && (
           <ContextMenuItem
             className="cursor-pointer space-x-2"
             // onClick={() => {
@@ -75,7 +71,7 @@ export function ChatListCard({
             // }}
           >
             <Pin size={20} />
-            <div>{pinned ? "Unpin" : "Pin"}</div>
+            <div>{props.pinned ? "Unpin" : "Pin"}</div>
           </ContextMenuItem>
         )}
 
@@ -89,7 +85,7 @@ export function ChatListCard({
           // }}
         >
           <Archive size={20} />
-          <div>{archived ? "Unarchive" : "Archive"}</div>
+          <div>{props.archived ? "Unarchive" : "Archive"}</div>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

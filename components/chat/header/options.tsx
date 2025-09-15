@@ -19,13 +19,13 @@ import {
 
 export default function Options() {
   const { channel: selectedChat, setActiveChannel } = useChatContext();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpenChange } = useDisclosure();
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger className="hidden h-10 w-10 items-center justify-center rounded-full outline-none transition-all hover:bg-default/40 md:flex">
-          <EllipsisVertical />
+          <EllipsisVertical className="text-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem

@@ -5,7 +5,10 @@ import { useInView } from "react-intersection-observer";
 import { useTheme } from "next-themes";
 import dayjs from "dayjs";
 import { Chip } from "@heroui/chip";
-import { useChannelStateContext, useChatContext } from "stream-chat-react";
+import {
+  useChannelStateContext,
+  useChatContext,
+} from "stream-chat-react";
 
 import Message from "../message";
 
