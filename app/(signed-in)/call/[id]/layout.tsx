@@ -10,12 +10,15 @@ import {
   StreamVideo,
   StreamVideoClient,
 } from "@stream-io/video-react-sdk";
-import { useParams, useSearchParams } from "next/navigation";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
-
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { PhoneIcon, ShieldAlert } from "lucide-react";
+import { useQuery } from "convex/react";
+import { Button } from "@heroui/button";
 
 import { createToken } from "@/actions/create-token";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 if (!process.env.NEXT_PUBLIC_STREAM_API_KEY) {
   throw new Error("Missing Stream API key");
@@ -32,6 +35,10 @@ export default function CallLayout({
   const [call, setCall] = useState<Call | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
+  const checkChat = useQuery(api.chats.checkChat, {
+    chatId: id as Id<"chats">,
+  });
+  const router = useRouter();
 
   const tokenProvider = useCallback(async () => {
     if (!user?.username) {
@@ -66,7 +73,7 @@ export default function CallLayout({
   }, [user, tokenProvider]);
 
   useEffect(() => {
-    if (!client || !id) return;
+    if (!client || !id || !checkChat) return;
 
     setError(null);
     const streamCall = client.call("default", id as string);
@@ -96,7 +103,17 @@ export default function CallLayout({
         streamCall.leave();
       }
     };
-  }, [client, id, searchParams]);
+  }, [client, id, searchParams, checkChat]);
+
+  if (!checkChat) {
+    return (
+      <div className="flex h-svh flex-col items-center justify-center gap-4">
+        <ShieldAlert />
+        <span>Chat not found</span>
+        <Button onPress={() => router.push("/")}>Go back</Button>
+      </div>
+    );
+  }
 
   if (!client) {
     return (
@@ -120,7 +137,7 @@ export default function CallLayout({
     return (
       <div className="flex h-svh flex-col items-center justify-center gap-4">
         <PhoneIcon className="animate-bounce" />
-        <span>Joining call...</span>
+        <span>Calling...</span>
       </div>
     );
   }

@@ -4,10 +4,11 @@ import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/modal";
 import {
   CallControls,
+  CallingState,
   SpeakerLayout,
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, PhoneIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -40,6 +41,15 @@ export default function CallPage() {
       onOpen();
     }
   }, [participants]);
+
+  if (callignState === CallingState.JOINING) {
+    return (
+      <div className="flex h-svh flex-col items-center justify-center gap-4">
+        <PhoneIcon className="animate-bounce" />
+        <span>Joining call...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
