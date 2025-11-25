@@ -4,12 +4,13 @@ import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
     name: v.string(),
-    username: v.string(),
+    username: v.optional(v.string()),
     email: v.string(),
-    tokenIdentifier: v.string(),
-    avatarUrl: v.string(),
+    tokenIdentifier: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
   })
     .index("by_token", ["tokenIdentifier"])
+    .index("email", ["email"])
     .searchIndex("search_username", { searchField: "username" }),
 
   chats: defineTable({

@@ -1,6 +1,4 @@
-import { ClerkLoaded, ClerkLoading, UserButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
-import { Skeleton } from "@heroui/skeleton";
 import { Tooltip } from "@heroui/tooltip";
 import Link from "next/link";
 import { Archive, EllipsisVertical, Moon, Sun } from "lucide-react";
@@ -106,15 +104,9 @@ export default function ChatListHeader() {
       </Tooltip>
 
       {/* User */}
-      <ClerkLoading>
-        <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" />
-      </ClerkLoading>
+        {/* <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" /> */}
 
-      <ClerkLoaded>
-        <div className="flex justify-self-end">
-          <UserButton />
-        </div>
-      </ClerkLoaded>
+        {/* <div className="flex justify-self-end" /> */}
     </header>
   );
 }

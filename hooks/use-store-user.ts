@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/clerk-react";
 import { useConvexAuth, useMutation } from "convex/react";
 import { useEffect, useState } from "react";
 
@@ -9,7 +8,6 @@ import { Id } from "../convex/_generated/dataModel";
 
 export function useStoreUserEffect() {
   const { isLoading, isAuthenticated } = useConvexAuth();
-  const { user } = useUser();
   // When this state is set we know the server
   // has stored the user.
   const [userId, setUserId] = useState<Id<"users"> | null>(null);
@@ -35,7 +33,7 @@ export function useStoreUserEffect() {
     return () => setUserId(null);
     // Make sure the effect reruns if the user logs in with
     // a different identity
-  }, [isAuthenticated, storeUser, user?.id]);
+  }, [isAuthenticated, storeUser]);
 
   // NOTE: Use this if you want to use chat messaging with getstream
   // useEffect(() => {
