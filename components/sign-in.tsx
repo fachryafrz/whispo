@@ -19,12 +19,9 @@ export default function SignIn() {
 
   return (
     <Card className="max-w-md grow">
-      <CardHeader className="flex-col gap-2">
+      <CardHeader className="flex-col gap-4">
         <Logo height={48} width={48} />
         <h1 className="text-lg font-bold md:text-xl">Sign In</h1>
-        <p className="text-xs text-neutral-500 md:text-sm">
-          Enter your email below to login to your account
-        </p>
       </CardHeader>
       <CardBody>
         <div className="grid gap-4">
@@ -82,10 +79,14 @@ export default function SignIn() {
             )}
           </Button>
 
+          <div className="flex items-center justify-center">
+            <span className="text-xs text-neutral-500">Or</span>
+          </div>
+
           <div
             className={cn(
               "flex w-full items-center gap-2",
-              "flex-col justify-between",
+              "relative flex-col justify-between",
             )}
           >
             <Button

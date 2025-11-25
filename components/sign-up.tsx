@@ -41,12 +41,9 @@ export default function SignUp() {
 
   return (
     <Card className="z-50 max-w-md">
-      <CardHeader className="flex-col items-center gap-2">
+      <CardHeader className="flex-col items-center gap-4">
         <Logo height={48} width={48} />
         <h1 className="text-lg font-bold md:text-xl">Sign Up</h1>
-        <p className="text-xs text-neutral-500 md:text-sm">
-          Enter your information to create an account
-        </p>
       </CardHeader>
       <CardBody>
         <div className="grid gap-4">
