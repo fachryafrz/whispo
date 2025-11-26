@@ -19,7 +19,7 @@ import { signOut, useSession } from "@/lib/auth-client";
 
 export default function ChatListHeader() {
   const { resolvedTheme, setTheme } = useTheme();
-  const { open, setOpen } = useArchivedChats();
+  const { setOpen } = useArchivedChats();
 
   const { data } = useSession();
 
