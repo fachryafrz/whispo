@@ -6,10 +6,12 @@ import {
 import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
+import { ConvexError, v } from "convex/values";
 
 import { components, internal } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import authSchema from "./betterAuth/schema";
+import { mutation } from "./_generated/server";
 
 const siteUrl = process.env.SITE_URL!;
 const authFunctions: AuthFunctions = internal.auth;
@@ -34,11 +36,10 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
 
           // if user already exists, update image if it's not set
           if (existingUser) {
-            if (!existingUser.avatarUrl) {
-              await ctx.db.patch(existingUser._id, {
-                avatarUrl: doc.image || undefined,
-              });
-            }
+            await ctx.db.patch(existingUser._id, {
+              avatarUrl: doc.image || undefined,
+              tokenIdentifier: undefined,
+            });
 
             // set user id on betterAuth component
             await ctx.runMutation(components.betterAuth.auth.setUserId, {
@@ -109,3 +110,39 @@ export const createAuth = (
     ],
   });
 };
+
+export const setUsername = mutation({
+  args: {
+    username: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) return;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", identity.email!))
+      .unique();
+
+    if (!user) return;
+
+    const username = args.username.toLowerCase();
+
+    const userExists = await ctx.db
+      .query("users")
+      .withIndex("username", (q) => q.eq("username", username))
+      .unique();
+
+    if (userExists) throw new ConvexError("Username already exists");
+
+    await ctx.db.patch(user._id, {
+      username,
+    });
+
+    await ctx.runMutation(components.betterAuth.auth.setUsername, {
+      userId: user._id,
+      username,
+    });
+  },
+});

@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 import { Tooltip } from "@heroui/tooltip";
 import Link from "next/link";
-import { Archive, EllipsisVertical, Moon, Sun } from "lucide-react";
+import { Archive, EllipsisVertical, LogOut, Moon, Sun } from "lucide-react";
 
 import Logo from "../logo";
 import {
@@ -13,6 +13,7 @@ import {
 
 import { siteConfig } from "@/config/site";
 import { useArchivedChats } from "@/zustand/archived-chats";
+import { signOut } from "@/lib/auth-client";
 
 export default function ChatListHeader() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -52,6 +53,17 @@ export default function ChatListHeader() {
             >
               <Archive size={20} />
               <div>Archived Chats</div>
+            </DropdownMenuItem>
+
+            {/* Logout */}
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                await signOut();
+              }}
+            >
+              <LogOut size={20} />
+              <div>Logout</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -104,9 +116,9 @@ export default function ChatListHeader() {
       </Tooltip>
 
       {/* User */}
-        {/* <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" /> */}
+      {/* <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" /> */}
 
-        {/* <div className="flex justify-self-end" /> */}
+      {/* <div className="flex justify-self-end" /> */}
     </header>
   );
 }

@@ -22,7 +22,7 @@ export default function EditMessageModal({
   isOpen,
   onOpenChange,
 }: {
-  msg: Doc<"chat_messages">;
+  msg: Doc<"messages">;
   message: string | null;
   setMessage: (message: string) => void;
   isOpen: boolean;
@@ -53,7 +53,7 @@ export default function EditMessageModal({
                   e.preventDefault();
 
                   editMessage({
-                    messageId: msg._id as Id<"chat_messages">,
+                    messageId: msg._id as Id<"messages">,
                     chatId: msg.chatId as Id<"chats">,
                     text: message as string,
                   });

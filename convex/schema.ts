@@ -11,6 +11,7 @@ export default defineSchema({
   })
     .index("by_token", ["tokenIdentifier"])
     .index("email", ["email"])
+    .index("username", ["username"])
     .searchIndex("search_username", { searchField: "username" }),
 
   chats: defineTable({
@@ -24,7 +25,7 @@ export default defineSchema({
     hasMedia: v.optional(v.boolean()),
   }).index("by_type", ["type"]),
 
-  chat_participants: defineTable({
+  chatParticipants: defineTable({
     chatId: v.id("chats"),
     userId: v.id("users"),
   })
@@ -32,19 +33,19 @@ export default defineSchema({
     .index("by_chat", ["chatId"])
     .index("by_user_chat", ["userId", "chatId"]),
 
-  chat_messages: defineTable({
+  messages: defineTable({
     chatId: v.id("chats"),
     senderId: v.id("users"),
     text: v.string(),
     mediaId: v.optional(v.id("_storage")),
-    replyTo: v.optional(v.id("chat_messages")),
+    replyTo: v.optional(v.id("messages")),
     isEdited: v.optional(v.boolean()),
     isUnsent: v.optional(v.boolean()),
   }).index("by_chat", ["chatId"]),
 
-  deleted_messages: defineTable({
+  deletedMessages: defineTable({
     chatId: v.id("chats"),
-    messageId: v.id("chat_messages"),
+    messageId: v.id("messages"),
     userId: v.id("users"),
   })
     .index("by_chat", ["chatId"])
@@ -52,7 +53,7 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_chat", ["userId", "chatId"]),
 
-  pinned_chats: defineTable({
+  chatPinned: defineTable({
     chatId: v.id("chats"),
     userId: v.id("users"),
   })
@@ -60,7 +61,7 @@ export default defineSchema({
     .index("by_chat", ["chatId"])
     .index("by_user_chat", ["userId", "chatId"]),
 
-  archived_chats: defineTable({
+  chatArchived: defineTable({
     chatId: v.id("chats"),
     userId: v.id("users"),
   })
@@ -68,7 +69,7 @@ export default defineSchema({
     .index("by_chat", ["chatId"])
     .index("by_user_chat", ["userId", "chatId"]),
 
-  unread_messages: defineTable({
+  unreadMessages: defineTable({
     userId: v.id("users"), // User that has unread messages
     chatId: v.id("chats"), // Related chat
     count: v.number(), // Unread message count
@@ -77,10 +78,10 @@ export default defineSchema({
     .index("by_chat", ["chatId"])
     .index("by_user_chat", ["userId", "chatId"]),
 
-  friendships: defineTable({
-    // TODO: friendships
-    user1: v.id("users"),
-    user2: v.id("users"),
-    status: v.string(),
-  }).index("by_users", ["user1", "user2"]),
+  // friendships: defineTable({
+  //   // TODO: friendships
+  //   user1: v.id("users"),
+  //   user2: v.id("users"),
+  //   status: v.string(),
+  // }).index("by_users", ["user1", "user2"]),
 });

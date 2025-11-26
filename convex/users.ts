@@ -11,9 +11,7 @@ export const getCurrentUser = query({
 
     const user = await ctx.db
       .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
+      .withIndex("email", (q) => q.eq("email", identity.email!))
       .unique();
 
     if (!user) return;
@@ -71,9 +69,7 @@ export const store = mutation({
     //  .unique();
     const user = await ctx.db
       .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
+      .withIndex("email", (q) => q.eq("email", identity.email!))
       .unique();
 
     if (user !== null) {

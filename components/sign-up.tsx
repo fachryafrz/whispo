@@ -17,6 +17,7 @@ import { signUp } from "@/lib/auth-client";
 export default function SignUp() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -72,6 +73,18 @@ export default function SignUp() {
                 }}
               />
             </div>
+          </div>
+          <div className="grid gap-2">
+            <Input
+              required
+              id="username"
+              label="Username"
+              placeholder="max"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+            />
           </div>
           <div className="grid gap-2">
             <Input
@@ -143,12 +156,13 @@ export default function SignUp() {
           </div>
           <Button
             className="w-full"
-            disabled={loading}
+            isDisabled={loading}
             type="submit"
             onPress={async () => {
               await signUp.email({
                 email,
                 password,
+                username,
                 name: `${firstName} ${lastName}`,
                 image: image ? await convertImageToBase64(image) : "",
                 callbackURL: "/",

@@ -6,6 +6,8 @@ import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import Link from "next/link";
+import { Checkbox } from "@heroui/checkbox";
+import { addToast } from "@heroui/toast";
 
 import Logo from "./logo";
 
@@ -16,6 +18,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   return (
     <Card className="max-w-md grow">
@@ -51,6 +54,15 @@ export default function SignIn() {
             />
           </div>
 
+          <Checkbox
+            className="text-xs"
+            id="rememberMe"
+            isSelected={rememberMe}
+            onValueChange={setRememberMe}
+          >
+            Remember me
+          </Checkbox>
+
           <Button
             className="w-full"
             isDisabled={loading}
@@ -59,6 +71,7 @@ export default function SignIn() {
               await signIn.email(
                 {
                   email,
+                  rememberMe: true,
                   password,
                 },
                 {
@@ -67,6 +80,13 @@ export default function SignIn() {
                   },
                   onResponse: (ctx) => {
                     setLoading(false);
+                  },
+                  onError(ctx) {
+                    addToast({
+                      color: "danger",
+                      title: "Error",
+                      description: ctx.error.message,
+                    });
                   },
                 },
               );
