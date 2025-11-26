@@ -41,6 +41,7 @@ export default defineSchema({
     replyTo: v.optional(v.id("messages")),
     isEdited: v.optional(v.boolean()),
     isUnsent: v.optional(v.boolean()),
+    sentAt: v.optional(v.number()),
   }).index("by_chat", ["chatId"]),
 
   deletedMessages: defineTable({
