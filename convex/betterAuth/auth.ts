@@ -22,23 +22,3 @@ export const setUserId = mutation({
     });
   },
 });
-
-export const setUsername = mutation({
-  args: {
-    userId: v.string(),
-    username: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("user")
-      .withIndex("userId", (q) => q.eq("userId", args.userId))
-      .unique();
-
-    if (!user) return;
-
-    await ctx.db.patch(user._id, {
-      username: args.username,
-      displayUsername: args.username,
-    });
-  },
-});

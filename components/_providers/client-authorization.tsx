@@ -74,7 +74,7 @@ export default function ClientAuthorization({
                 label="Username"
                 placeholder="Enter your username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && username.length > 0) {
                     const submitBtn = document.getElementById(
