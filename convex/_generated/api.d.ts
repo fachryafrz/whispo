@@ -1022,12 +1022,6 @@ export declare const components: {
         { authId: string; userId: string; username?: string },
         any
       >;
-      setUsername: FunctionReference<
-        "mutation",
-        "internal",
-        { userId: string; username: string },
-        any
-      >;
     };
   };
 };

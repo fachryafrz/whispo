@@ -997,12 +997,5 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         any,
         Name
       >;
-      setUsername: FunctionReference<
-        "mutation",
-        "internal",
-        { userId: string; username: string },
-        any,
-        Name
-      >;
     };
   };
