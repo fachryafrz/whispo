@@ -3,6 +3,7 @@ import { paginationOptsValidator } from "convex/server";
 
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { getUser } from "./utils";
 
 import { Chat } from "@/zustand/selected-chat";
 
@@ -10,36 +11,27 @@ import { Chat } from "@/zustand/selected-chat";
 export const getChats = query({
   args: {},
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     // Get pinned & archived chat IDs
-    const [pinnedChats, archivedChats] = await Promise.all([
+    const [chatPinned, chatArchived] = await Promise.all([
       ctx.db
-        .query("pinned_chats")
+        .query("chatPinned")
         .withIndex("by_user", (q) => q.eq("userId", user._id))
         .collect(),
       ctx.db
-        .query("archived_chats")
+        .query("chatArchived")
         .withIndex("by_user", (q) => q.eq("userId", user._id))
         .collect(),
     ]);
 
-    const pinnedChatIds = pinnedChats.map((c) => c.chatId);
-    const archivedChatIds = archivedChats.map((c) => c.chatId);
+    const pinnedChatIds = chatPinned.map((c) => c.chatId);
+    const archivedChatIds = chatArchived.map((c) => c.chatId);
 
     const userChats = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
@@ -68,21 +60,12 @@ export const getChat = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     const participants = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId as Id<"chats">))
       .collect();
 
@@ -109,21 +92,12 @@ export const checkChat = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     const participants = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId as Id<"chats">),
       )
@@ -138,23 +112,14 @@ export const getInterlocutor = query({
     chatId: v.optional(v.id("chats")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     if (!args.chatId) return;
 
     const participants = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId as Id<"chats">))
       .collect();
 
@@ -169,21 +134,12 @@ export const getChatParticipants = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return [];
 
     const participants = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .collect();
 
@@ -199,16 +155,7 @@ export const selectOrStartConversation = mutation({
     targetId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -216,14 +163,14 @@ export const selectOrStartConversation = mutation({
 
     // NOTE: Check if there is already a chat between the user and the target
     const existingUserChats = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     const existingChatIds = existingUserChats.map((p) => p.chatId);
 
     const existingTargetChats = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_user", (q) => q.eq("userId", args.targetId as Id<"users">))
       .collect();
 
@@ -236,7 +183,7 @@ export const selectOrStartConversation = mutation({
     if (commonChatId) {
       // Delete unread messages
       const unreadMessages = await ctx.db
-        .query("unread_messages")
+        .query("unreadMessages")
         .withIndex("by_user_chat", (q) =>
           q.eq("userId", user._id).eq("chatId", commonChatId),
         )
@@ -254,11 +201,11 @@ export const selectOrStartConversation = mutation({
       type: args.type,
     });
 
-    await ctx.db.insert("chat_participants", {
+    await ctx.db.insert("chatParticipants", {
       chatId: chatId as Id<"chats">,
       userId: user._id,
     });
-    await ctx.db.insert("chat_participants", {
+    await ctx.db.insert("chatParticipants", {
       chatId: chatId as Id<"chats">,
       userId: args.targetId,
     });
@@ -273,21 +220,12 @@ export const pinChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     const existing = await ctx.db
-      .query("pinned_chats")
+      .query("chatPinned")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -297,7 +235,7 @@ export const pinChat = mutation({
       return await ctx.db.delete(existing._id);
     }
 
-    return await ctx.db.insert("pinned_chats", {
+    return await ctx.db.insert("chatPinned", {
       userId: user._id,
       chatId: args.chatId,
     });
@@ -305,29 +243,20 @@ export const pinChat = mutation({
 });
 
 // Get Archived chats
-export const archivedChats = query({
+export const chatArchived = query({
   args: {},
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+  handler: async (ctx) => {
+    const user = await getUser(ctx);
 
     if (!user) return;
 
-    const pinnedChats = await ctx.db
-      .query("archived_chats")
+    const chatPinned = await ctx.db
+      .query("chatArchived")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     const chats = await Promise.all(
-      pinnedChats.map((pc) => ctx.db.get(pc.chatId)),
+      chatPinned.map((pc) => ctx.db.get(pc.chatId)),
     );
 
     return chats;
@@ -340,21 +269,12 @@ export const archiveChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     const existing = await ctx.db
-      .query("archived_chats")
+      .query("chatArchived")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -365,7 +285,7 @@ export const archiveChat = mutation({
     }
 
     const isPinned = await ctx.db
-      .query("pinned_chats")
+      .query("chatPinned")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -375,7 +295,7 @@ export const archiveChat = mutation({
       await ctx.db.delete(isPinned._id);
     }
 
-    return await ctx.db.insert("archived_chats", {
+    return await ctx.db.insert("chatArchived", {
       userId: user._id,
       chatId: args.chatId,
     });
@@ -389,33 +309,33 @@ export const clearChat = mutation({
   },
   handler: async (ctx, args) => {
     const messages = await ctx.db
-      .query("chat_messages")
+      .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .order("desc")
       .collect();
 
     const unreadMessages = await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .collect();
 
     const isPinned = await ctx.db
-      .query("pinned_chats")
+      .query("chatPinned")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .first();
 
     const isArchived = await ctx.db
-      .query("archived_chats")
+      .query("chatArchived")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .first();
 
     const chatParticipants = await ctx.db
-      .query("chat_participants")
+      .query("chatParticipants")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .collect();
 
     const deletedMessages = await ctx.db
-      .query("deleted_messages")
+      .query("deletedMessages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .collect();
 
@@ -473,21 +393,12 @@ export const getMessages = query({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return [];
 
     const deletedMessages = await ctx.db
-      .query("deleted_messages")
+      .query("deletedMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -498,7 +409,7 @@ export const getMessages = query({
     );
 
     const results = await ctx.db
-      .query("chat_messages")
+      .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .order("desc")
       .paginate(args.paginationOpts);
@@ -545,25 +456,16 @@ export const sendMessage = mutation({
     chatId: v.id("chats"),
     text: v.string(),
     mediaId: v.optional(v.id("_storage")),
-    replyTo: v.optional(v.id("chat_messages")),
+    replyTo: v.optional(v.id("messages")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     // Delete unread messages for current user
     const unreadMessages = await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -575,7 +477,7 @@ export const sendMessage = mutation({
 
     // Check if chat is archived
     const isArchived = await ctx.db
-      .query("archived_chats")
+      .query("chatArchived")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -594,7 +496,7 @@ export const sendMessage = mutation({
     });
 
     // Insert message
-    const message = await ctx.db.insert("chat_messages", {
+    const message = await ctx.db.insert("messages", {
       chatId: args.chatId,
       senderId: user._id,
       text: args.text,
@@ -608,27 +510,18 @@ export const sendMessage = mutation({
 
 export const editMessage = mutation({
   args: {
-    messageId: v.id("chat_messages"),
+    messageId: v.id("messages"),
     text: v.string(),
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     // Delete unread messages for current user
     const unreadMessages = await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -647,21 +540,12 @@ export const editMessage = mutation({
 
 export const unsendMessage = mutation({
   args: {
-    messageId: v.id("chat_messages"),
+    messageId: v.id("messages"),
     chatId: v.id("chats"),
     index: v.number(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -684,7 +568,7 @@ export const unsendMessage = mutation({
 
     // Delete unread messages for current user
     const unreadMessages = await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -703,23 +587,14 @@ export const unsendMessage = mutation({
 export const deleteMessage = mutation({
   args: {
     chatId: v.id("chats"),
-    messageId: v.id("chat_messages"),
+    messageId: v.id("messages"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
-    return await ctx.db.insert("deleted_messages", {
+    return await ctx.db.insert("deletedMessages", {
       chatId: args.chatId,
       messageId: args.messageId,
       userId: user._id,
@@ -740,21 +615,12 @@ export const getUnreadMessages = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
     return await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", user._id).eq("chatId", args.chatId),
       )
@@ -770,7 +636,7 @@ export const addUnreadMessage = mutation({
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", args.userId).eq("chatId", args.chatId),
       )
@@ -782,7 +648,7 @@ export const addUnreadMessage = mutation({
       });
     }
 
-    return await ctx.db.insert("unread_messages", args);
+    return await ctx.db.insert("unreadMessages", args);
   },
 });
 
@@ -794,7 +660,7 @@ export const readMessage = mutation({
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
-      .query("unread_messages")
+      .query("unreadMessages")
       .withIndex("by_user_chat", (q) =>
         q.eq("userId", args.userId).eq("chatId", args.chatId),
       )

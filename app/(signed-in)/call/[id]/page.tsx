@@ -18,7 +18,7 @@ export default function CallPage() {
   const participants = useParticipants();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { onOpen } = useDisclosure();
 
   const handleLeave = () => {
     router.push("/");

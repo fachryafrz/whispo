@@ -1,9 +1,9 @@
-import { ClerkLoaded, ClerkLoading, UserButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
-import { Skeleton } from "@heroui/skeleton";
 import { Tooltip } from "@heroui/tooltip";
 import Link from "next/link";
-import { Archive, EllipsisVertical, Moon, Sun } from "lucide-react";
+import { Archive, EllipsisVertical, LogOut, Moon, Sun } from "lucide-react";
+import { Skeleton } from "@heroui/skeleton";
+import { Avatar } from "@heroui/avatar";
 
 import Logo from "../logo";
 import {
@@ -15,10 +15,13 @@ import {
 
 import { siteConfig } from "@/config/site";
 import { useArchivedChats } from "@/zustand/archived-chats";
+import { signOut, useSession } from "@/lib/auth-client";
 
 export default function ChatListHeader() {
   const { resolvedTheme, setTheme } = useTheme();
-  const { open, setOpen } = useArchivedChats();
+  const { setOpen } = useArchivedChats();
+
+  const { data } = useSession();
 
   const onChange = () => {
     resolvedTheme === "light" ? setTheme("dark") : setTheme("light");
@@ -106,15 +109,27 @@ export default function ChatListHeader() {
       </Tooltip>
 
       {/* User */}
-      <ClerkLoading>
+      {!data ? (
         <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" />
-      </ClerkLoading>
-
-      <ClerkLoaded>
-        <div className="flex justify-self-end">
-          <UserButton />
-        </div>
-      </ClerkLoaded>
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex h-10 w-10 items-center justify-center justify-self-end rounded-full outline-none transition-all hover:bg-default/40">
+            <Avatar src={data.user.image!} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {/* Sign Out */}
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                await signOut();
+              }}
+            >
+              <LogOut />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </header>
   );
 }

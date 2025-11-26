@@ -20,7 +20,7 @@ export default function Message({
   isDifferentSenderNext,
   isDifferentSenderPrev,
 }: {
-  msg: Doc<"chat_messages">;
+  msg: Doc<"messages">;
   currentUser: Doc<"users">;
   index: number;
   isDifferentSenderPrev?: boolean;

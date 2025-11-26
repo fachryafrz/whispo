@@ -62,7 +62,7 @@ export default function ChatInput() {
     sendMessage({
       chatId: selectedChat?.chatId as Id<"chats">,
       text: text as string,
-      replyTo: (replyMessage?._id as Id<"chat_messages">) || undefined,
+      replyTo: (replyMessage?._id as Id<"messages">) || undefined,
       mediaId: (storageId as Id<"_storage">) || undefined,
     });
 
