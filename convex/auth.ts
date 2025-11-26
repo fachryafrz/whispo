@@ -12,6 +12,7 @@ import { components, internal } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import authSchema from "./betterAuth/schema";
 import { mutation } from "./_generated/server";
+import { getUser } from "./utils";
 
 const siteUrl = process.env.SITE_URL!;
 const authFunctions: AuthFunctions = internal.auth;
@@ -117,14 +118,7 @@ export const setUsername = mutation({
     username: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 

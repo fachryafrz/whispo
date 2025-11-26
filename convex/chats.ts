@@ -3,6 +3,7 @@ import { paginationOptsValidator } from "convex/server";
 
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { getUser } from "./utils";
 
 import { Chat } from "@/zustand/selected-chat";
 
@@ -10,14 +11,7 @@ import { Chat } from "@/zustand/selected-chat";
 export const getChats = query({
   args: {},
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -66,14 +60,7 @@ export const getChat = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -105,14 +92,7 @@ export const checkChat = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -132,14 +112,7 @@ export const getInterlocutor = query({
     chatId: v.optional(v.id("chats")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -161,14 +134,7 @@ export const getChatParticipants = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return [];
 
@@ -189,14 +155,7 @@ export const selectOrStartConversation = mutation({
     targetId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -261,14 +220,7 @@ export const pinChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -293,15 +245,8 @@ export const pinChat = mutation({
 // Get Archived chats
 export const chatArchived = query({
   args: {},
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+  handler: async (ctx) => {
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -324,14 +269,7 @@ export const archiveChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -455,14 +393,7 @@ export const getMessages = query({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return [];
 
@@ -528,14 +459,7 @@ export const sendMessage = mutation({
     replyTo: v.optional(v.id("messages")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -591,14 +515,7 @@ export const editMessage = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -628,14 +545,7 @@ export const unsendMessage = mutation({
     index: v.number(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -680,14 +590,7 @@ export const deleteMessage = mutation({
     messageId: v.id("messages"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 
@@ -712,14 +615,7 @@ export const getUnreadMessages = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) return;
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email!))
-      .unique();
+    const user = await getUser(ctx);
 
     if (!user) return;
 

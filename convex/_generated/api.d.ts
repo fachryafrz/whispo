@@ -10,9 +10,9 @@
 
 import type * as auth from "../auth.js";
 import type * as chats from "../chats.js";
-import type * as friendships from "../friendships.js";
 import type * as http from "../http.js";
 import type * as users from "../users.js";
+import type * as utils from "../utils.js";
 
 import type {
   ApiFromModules,
@@ -23,9 +23,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   chats: typeof chats;
-  friendships: typeof friendships;
   http: typeof http;
   users: typeof users;
+  utils: typeof utils;
 }>;
 
 /**

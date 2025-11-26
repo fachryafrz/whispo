@@ -1,4 +1,4 @@
-import { getToken as getTokenNextjs } from "@convex-dev/better-auth/dist/commonjs/nextjs";
+import { getToken as getTokenNextjs } from "@convex-dev/better-auth/nextjs";
 
 import { createAuth } from "@/convex/auth";
 
