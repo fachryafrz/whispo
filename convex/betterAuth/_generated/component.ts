@@ -993,7 +993,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
       setUserId: FunctionReference<
         "mutation",
         "internal",
-        { authId: string; userId: string },
+        { authId: string; userId: string; username?: string },
         any,
         Name
       >;

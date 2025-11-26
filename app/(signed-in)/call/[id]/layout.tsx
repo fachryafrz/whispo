@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Call,
   CallingState,
@@ -17,6 +17,8 @@ import { Button } from "@heroui/button";
 
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useSession } from "@/lib/auth-client";
+import { createToken } from "@/actions/create-token";
 
 if (!process.env.NEXT_PUBLIC_STREAM_API_KEY) {
   throw new Error("Missing Stream API key");
@@ -36,38 +38,39 @@ export default function CallLayout({
     chatId: id as Id<"chats">,
   });
   const router = useRouter();
+  const { data } = useSession();
 
-  // const tokenProvider = useCallback(async () => {
-  //   if (!user?.username) {
-  //     throw new Error("User not found");
-  //   }
+  const tokenProvider = useCallback(async () => {
+    if (!data?.user?.username) {
+      throw new Error("User not found");
+    }
 
-  //   return await createToken(user.username);
-  // }, [user?.username]);
+    return await createToken(data.user.username);
+  }, [data?.user?.username]);
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     setClient(null);
+  useEffect(() => {
+    if (!data?.user) {
+      setClient(null);
 
-  //     return;
-  //   }
+      return;
+    }
 
-  //   const newClient = new StreamVideoClient({
-  //     apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
-  //     user: {
-  //       id: user.username as string,
-  //       name: user.fullName || "Anonymous",
-  //       image: user.imageUrl as string,
-  //     },
-  //     tokenProvider,
-  //   });
+    const newClient = new StreamVideoClient({
+      apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
+      user: {
+        id: data.user.username as string,
+        name: data.user.name || "Anonymous",
+        image: data.user.image as string,
+      },
+      tokenProvider,
+    });
 
-  //   setClient(newClient);
+    setClient(newClient);
 
-  //   return () => {
-  //     newClient.disconnectUser();
-  //   };
-  // }, [user, tokenProvider]);
+    return () => {
+      newClient.disconnectUser();
+    };
+  }, [data?.user, tokenProvider]);
 
   useEffect(() => {
     if (!client || !id || !checkChat) return;

@@ -1019,7 +1019,7 @@ export declare const components: {
       setUserId: FunctionReference<
         "mutation",
         "internal",
-        { authId: string; userId: string },
+        { authId: string; userId: string; username?: string },
         any
       >;
       setUsername: FunctionReference<

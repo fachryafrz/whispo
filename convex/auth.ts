@@ -45,6 +45,7 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
             await ctx.runMutation(components.betterAuth.auth.setUserId, {
               authId: doc._id,
               userId: existingUser._id,
+              username: existingUser.username,
             });
 
             return;

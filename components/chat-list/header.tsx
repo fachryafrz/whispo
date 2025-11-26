@@ -2,6 +2,8 @@ import { useTheme } from "next-themes";
 import { Tooltip } from "@heroui/tooltip";
 import Link from "next/link";
 import { Archive, EllipsisVertical, LogOut, Moon, Sun } from "lucide-react";
+import { Skeleton } from "@heroui/skeleton";
+import { Avatar } from "@heroui/avatar";
 
 import Logo from "../logo";
 import {
@@ -13,11 +15,13 @@ import {
 
 import { siteConfig } from "@/config/site";
 import { useArchivedChats } from "@/zustand/archived-chats";
-import { signOut } from "@/lib/auth-client";
+import { signOut, useSession } from "@/lib/auth-client";
 
 export default function ChatListHeader() {
   const { resolvedTheme, setTheme } = useTheme();
   const { open, setOpen } = useArchivedChats();
+
+  const { data } = useSession();
 
   const onChange = () => {
     resolvedTheme === "light" ? setTheme("dark") : setTheme("light");
@@ -53,17 +57,6 @@ export default function ChatListHeader() {
             >
               <Archive size={20} />
               <div>Archived Chats</div>
-            </DropdownMenuItem>
-
-            {/* Logout */}
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={async () => {
-                await signOut();
-              }}
-            >
-              <LogOut size={20} />
-              <div>Logout</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -116,9 +109,27 @@ export default function ChatListHeader() {
       </Tooltip>
 
       {/* User */}
-      {/* <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" /> */}
-
-      {/* <div className="flex justify-self-end" /> */}
+      {!data ? (
+        <Skeleton className="flex h-10 w-10 justify-self-end rounded-full" />
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex h-10 w-10 items-center justify-center justify-self-end rounded-full outline-none transition-all hover:bg-default/40">
+            <Avatar src={data.user.image!} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {/* Sign Out */}
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                await signOut();
+              }}
+            >
+              <LogOut />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </header>
   );
 }
