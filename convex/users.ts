@@ -29,6 +29,6 @@ export const searchByUsername = query({
       .take(10);
 
     // Filter out the current user if identity is provided
-    return results.filter((user) => user.username !== user.username);
+    return results.filter((u) => u.username !== user.username);
   },
 });
