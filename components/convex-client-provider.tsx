@@ -1,27 +1,20 @@
 "use client";
 
+import { ReactNode, Suspense } from "react";
 import { ConvexReactClient } from "convex/react";
-import { ReactNode } from "react";
-import { ClerkProvider, useAuth } from "@clerk/clerk-react";
-import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { dark } from "@clerk/themes";
-import { useTheme } from "next-themes";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+import { authClient } from "@/lib/auth-client";
+
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
+  // Optionally pause queries until the user is authenticated
+  expectAuth: true,
+});
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
-  const { resolvedTheme } = useTheme();
-
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: resolvedTheme === "dark" ? dark : undefined,
-      }}
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-    >
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        {children}
-      </ConvexProviderWithClerk>
-    </ClerkProvider>
+    <ConvexBetterAuthProvider authClient={authClient} client={convex}>
+      <Suspense>{children}</Suspense>
+    </ConvexBetterAuthProvider>
   );
 }

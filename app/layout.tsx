@@ -3,11 +3,9 @@ import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
-import { Providers } from "./providers";
-
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { ConvexClientProvider } from "@/components/convex-client-provider";
+import Providers from "@/components/_providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -72,10 +70,8 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <ConvexClientProvider>
-            <main>{children}</main>
-          </ConvexClientProvider>
+        <Providers>
+          <main>{children}</main>
         </Providers>
       </body>
       <GoogleAnalytics gaId={process.env.GA_MEASUREMENT_ID as string} />

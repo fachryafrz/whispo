@@ -89,7 +89,7 @@ export default function SearchUser() {
             <li key={user.username}>
               <ChatCard
                 description={user.username}
-                imageUrl={user.avatarUrl}
+                imageUrl={user.avatarUrl!}
                 info={false}
                 title={user.name}
                 onPress={() => handleSelectUser(user)}

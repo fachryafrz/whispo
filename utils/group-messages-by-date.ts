@@ -2,9 +2,9 @@ import dayjs from "dayjs";
 
 import { Doc } from "@/convex/_generated/dataModel";
 
-export const groupMessagesByDate = (messages: Doc<"chat_messages">[]) => {
+export const groupMessagesByDate = (messages: Doc<"messages">[]) => {
   return messages.reduce(
-    (acc: { [key: string]: Doc<"chat_messages">[] }, message) => {
+    (acc: { [key: string]: Doc<"messages">[] }, message) => {
       const dateKey = dayjs(message._creationTime).format("YYYY-MM-DD");
 
       if (!acc[dateKey]) {

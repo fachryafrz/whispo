@@ -18,7 +18,7 @@ export default function MessageOptions({
   msg,
   index,
 }: {
-  msg: Doc<"chat_messages">;
+  msg: Doc<"messages">;
   index: number;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -97,7 +97,7 @@ export default function MessageOptions({
                   className="cursor-pointer gap-2 text-danger hover:!bg-danger hover:!text-white"
                   onClick={() => {
                     unsendMessage({
-                      messageId: msg._id as Id<"chat_messages">,
+                      messageId: msg._id as Id<"messages">,
                       chatId: msg.chatId as Id<"chats">,
                       index: index,
                     });
@@ -117,7 +117,7 @@ export default function MessageOptions({
           onClick={() => {
             deleteMessage({
               chatId: msg.chatId as Id<"chats">,
-              messageId: msg._id as Id<"chat_messages">,
+              messageId: msg._id as Id<"messages">,
             });
           }}
         >
