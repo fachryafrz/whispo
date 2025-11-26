@@ -134,7 +134,7 @@ export default function Message({
                 {/* Edited */}
                 {msg.isEdited && <span>Edited</span>}
 
-                <span>{dayjs(msg._creationTime).format("HH:mm A")}</span>
+                <span>{dayjs(msg.sentAt).format("HH:mm A")}</span>
               </div>
 
               {/* Time displayed */}
@@ -144,7 +144,7 @@ export default function Message({
                 {/* Edited */}
                 {msg.isEdited && <span>Edited</span>}
 
-                <span>{dayjs(msg._creationTime).format("HH:mm A")}</span>
+                <span>{dayjs(msg.sentAt).format("HH:mm A")}</span>
               </div>
             </div>
           </div>

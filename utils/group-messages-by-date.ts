@@ -5,7 +5,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 export const groupMessagesByDate = (messages: Doc<"messages">[]) => {
   return messages.reduce(
     (acc: { [key: string]: Doc<"messages">[] }, message) => {
-      const dateKey = dayjs(message._creationTime).format("YYYY-MM-DD");
+      const dateKey = dayjs(message.sentAt).format("YYYY-MM-DD");
 
       if (!acc[dateKey]) {
         acc[dateKey] = [];

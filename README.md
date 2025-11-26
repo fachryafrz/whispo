@@ -7,14 +7,14 @@ A fast, secure, and intuitive chat application designed to enhance communication
 ## ✨ Key Features
 
 - **Instant Messaging** – Chat in real-time with a smooth experience.
-- **Secure Login** – Authenticate easily with Clerk for a safe and private chat.
+- **Secure Login** – Authenticate easily with Better Auth for a safe and private chat.
 - **Optimized UI** – Beautiful and responsive interface built with HeroUI and Tailwind CSS.
 - **Real-time Updates** – Messages sync instantly using Convex's real-time database.
 - **Scalable & Modern** – Built with Next.js 15 and TypeScript for performance and maintainability.
 
 ## ✨ Features
 
-- 🔑 Authentication with Clerk
+- 🔑 Authentication with Better Auth
 
   - 🔐 Sign In/Sign Up
   - 🧑‍💼 User Profiles
@@ -46,7 +46,7 @@ A fast, secure, and intuitive chat application designed to enhance communication
 - **React**
 - **HeroUI**
 - **Tailwind CSS**
-- **Clerk**
+- **Better Auth**
 - **Convex**
 - **Typescript**
 

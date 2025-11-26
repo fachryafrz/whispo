@@ -502,6 +502,7 @@ export const sendMessage = mutation({
       text: args.text,
       replyTo: args.replyTo,
       mediaId: args.mediaId,
+      sentAt: Date.now(),
     });
 
     return await ctx.db.get(message);

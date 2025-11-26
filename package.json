@@ -10,9 +10,6 @@
     "convex": "pnpm dlx convex dev"
   },
   "dependencies": {
-    "@clerk/clerk-react": "5.31.1",
-    "@clerk/nextjs": "6.12.4",
-    "@clerk/themes": "2.2.20",
     "@convex-dev/better-auth": "^0.9.7",
     "@heroui/accordion": "2.2.12",
     "@heroui/alert": "2.2.15",
