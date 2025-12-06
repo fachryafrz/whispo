@@ -9,8 +9,8 @@ import {
 } from "convex/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { Spinner } from "@heroui/spinner";
 
-import Logo from "../logo";
 import SetUsername from "../set-username";
 
 import { api } from "@/convex/_generated/api";
@@ -46,14 +46,12 @@ export default function ClientAuthorization({
       <Unauthenticated>{children}</Unauthenticated>
 
       <Authenticated>
-        {!user?.username ? <SetUsername /> : children}
+        {user ? user.username ? children : <SetUsername /> : null}
       </Authenticated>
 
       <AuthLoading>
         <div className="flex min-h-svh items-center justify-center">
-          <div className="animate-pulse">
-            <Logo height={64} width={64} />
-          </div>
+          <Spinner size="lg" />
         </div>
       </AuthLoading>
     </>
